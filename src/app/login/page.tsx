@@ -13,8 +13,9 @@ export default function Login() {
                     className="w-full h-auto" />
             </div>   
             {/*카카오 버튼*/}
-            <button className="h-14 w-[60vw] bg-[#FEE500] flex items-center 
-                rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+            <button className="h-14 w-[60vw] bg-[#FEE500] flex items-center relative z-50
+                rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]
+                translation-all duration-120 hover:brightness-105 active:scale-98 active:brightness-90">
                 <MessageCircle className="w-[6.5vw] h-[6.5vw] max-w-[28px] max-h-[28px]
                     scale-x-[-1] fill-black stroke-0">
                 </MessageCircle>
