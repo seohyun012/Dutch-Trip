@@ -1,43 +1,58 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 
-export default function Login() {
-    return (
-        <main className="bg-[#0000FA] min-h-screen w-full
-            flex flex-col items-center justify-center p-2 overflow-hidden ">
-            {/*홈 로고_로고+텍스트 묶음*/}
-            <div className="flex flex-col mt-[10vw] w-full max-w-[500px]">
-                <div className="relative w-[85vw] max-w-[800px] aspect-square mb-2">
-                    <Image src="/home.png" alt="홈화면로고"
-                        fill className="object-contain" />
-                </div>    
+export default function Home() {
+  const menus = [
+    { title: "가평 여행 DAY-1", primary: true },
+    { title: "새로운 여행 추가", primary: false },
+    { title: "여행 등록", primary: false },
+    { title: "마이페이지", primary: false },
+  ];
 
-            {/*여기부터 다시--글자 위치 조절해야함*/}    
-                <div className="flex justify-center"> 
-                    <div className="text-[20vw] font-bold relative w-full -mt-50 items-center leading-[1]">
-                        <p className= "text-white w-full">Dutch</p>
-                        <p className="text-white w-full ml-[21vw]">Trip</p>
-                    </div> 
-                </div>
-            </div> 
-            {/*버튼*/}
-            <div className="flex flex-col gap-3.5">
-                <button className="h-14 w-[60vw] bg-[#0048FF] flex items-center 
-                    rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
-                    <span className="text-white text-[4vw] font-bold">가평 여행 DAY-1</span>
-                </button>
-                <button className="h-14 w-[60vw] bg-[#0048FF] flex items-center 
-                    rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
-                    <span className="text-white text-[4vw] font-bold">새로운 여행 추가</span>
-                </button>
-                <button className="h-14 w-[60vw] bg-[#0048FF] flex items-center 
-                    rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
-                    <span className="text-white text-[4vw] font-bold">여행 등록</span>
-                </button>
-                <button className="h-14 w-[60vw] bg-[#0048FF] flex items-center 
-                    rounded-xl gap-2 shadow-2xl justify-center shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
-                    <span className="text-white text-[4vw] font-bold">마이페이지</span>
-                </button>
-            </div>
-        </main>    
-    );
+  return (
+    <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center p-6 overflow-hidden">
+      {/* 상단 로고 및 텍스트 영역 */}
+      <section className="flex-1 flex flex-col items-center justify-center w-full max-w-[500px]">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative w-[70vw] max-w-[300px] aspect-square"
+        >
+          <Image
+            src="/home.png"
+            alt="홈화면로고"
+            fill
+            className="object-contain"
+            priority
+          />
+        </motion.div>
+
+        <div className="flex flex-col items-start w-full max-w-[280px] -mt-10">
+          <h1 className="text-[18vw] sm:text-8xl font-black text-white leading-[0.8] italic tracking-tighter">
+            Dutch
+          </h1>
+          <h1 className="text-[18vw] sm:text-8xl font-black text-white leading-[0.8] italic tracking-tighter ml-[15vw]">
+            Trip
+          </h1>
+        </div>
+      </section>
+
+      {/* 하단 버튼 메뉴 영역 */}
+      <section className="flex flex-col gap-3 w-full max-w-[320px] mb-12">
+        {menus.map((menu, idx) => (
+          <motion.button
+            key={idx}
+            whileTap={{ scale: 0.97 }}
+            className={`h-14 w-full rounded-2xl font-bold text-lg shadow-lg transition-colors
+              ${menu.primary ? "bg-[#0048FF] text-white" : "bg-white text-[#0000FA]"}
+              shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]`}
+          >
+            {menu.title}
+          </motion.button>
+        ))}
+      </section>
+    </main>
+  );
 }
