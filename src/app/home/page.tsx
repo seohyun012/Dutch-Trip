@@ -30,7 +30,7 @@ export default function Home() {
         </motion.div>
 
         <div className="flex flex-col items-start w-full max-w-[280px] -mt-10">
-          <h1 className="text-[18vw] sm:text-8xl font-black text-white leading-[0.8] italic tracking-tighter">
+          <h1 className="text-[18vw] sm:text-8xl font-black text-white leading-[0.8] italic tracking-tighter p-2">
             Dutch
           </h1>
           <h1 className="text-[18vw] sm:text-8xl font-black text-white leading-[0.8] italic tracking-tighter ml-[15vw]">
