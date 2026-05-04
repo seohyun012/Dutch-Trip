@@ -6,13 +6,13 @@ import { motion } from "framer-motion";
 
 export default function Login() {
   return (
-    <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-between p-8 overflow-hidden">
+    <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-center gap-12 p-5 overflow-hidden">
       {/* 로고 영역: 중앙 배치 유도 */}
-      <div className="flex-1 flex items-center justify-center w-full">
+      <div className=" flex items-center justify-center w-full">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="relative w-[100%] max-w-[1000px] min-w-[1000px] aspect-video"
+          className="relative w-full max-w-[800px] aspect-square"
         >
           <Image
             src="/login.png"
@@ -25,7 +25,7 @@ export default function Login() {
       </div>
 
       {/* 로그인 버튼 영역: 하단 고정 */}
-      <div className="w-full max-w-[320px] mb-20">
+      <div className="w-full max-w-[320px]">
         <motion.button
           whileTap={{ scale: 0.95 }}
           className="h-14 w-full bg-[#FEE500] flex items-center justify-center rounded-2xl gap-3 
