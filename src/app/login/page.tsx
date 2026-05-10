@@ -5,6 +5,14 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function Login() {
+  const REST_API_KEY = "4854a23fc38bfa5994757158caf67d95";
+  const REDIRECT_URI = "http://localhost:3000/oauth/kakao";
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+  const handleLogin = () => {
+    window.location.href = KAKAO_AUTH_URL;
+  };
+
   return (
     <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-center gap-12 p-5 overflow-hidden">
       {/* 로고 영역: 중앙 배치 유도 */}
@@ -28,6 +36,7 @@ export default function Login() {
       <div className="w-full max-w-[320px]">
         <motion.button
           whileTap={{ scale: 0.95 }}
+          onClick={handleLogin}
           className="h-14 w-full bg-[#FEE500] flex items-center justify-center rounded-2xl gap-3 
                      shadow-xl active:brightness-90 transition-all"
         >
