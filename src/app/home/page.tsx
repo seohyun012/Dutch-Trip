@@ -110,12 +110,10 @@ export default function Home() {
                   setIsInputMode(true);
                 }
                 else if (menu.title === "마이페이지") {
-                  //router.push(./mypage);
-                  alert("마이페이지로 이동합니다");
+                    router.push("/mypage");
                 }
                 else if (menu.title === "새로운 여행 추가") {
-                  //router.push(./);
-                  alert("새로운 여행을 생성합니다");
+                    router.push("/add-trip");
                 }
                 else if (menu.title === "가평 여행 DAY-1") {
                   //router.push(./); -->아마 타임라인으로 이동
