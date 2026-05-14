@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState} from "react";
-import { ChevronLeft } from "lucide-react";
+import { useState, useEffect} from "react";
+import { ChevronLeft} from "lucide-react";
 import { motion } from "framer-motion";
 
 // 백엔드 연결 전 가짜 데이터
@@ -37,7 +37,10 @@ const paymentData = [
 ];
 
 export default function SettlePage() {
-    const router = useRouter();
+  const router = useRouter();
+
+  //금액 포맷
+  const formatPrice = (price: number) => price.toLocaleString() + "원";
 
     return (
         <main className = "bg-white min-h-screen w-full flex flex-col relative items-stretch p-5 overflow-hidden justify-between">
@@ -62,11 +65,40 @@ export default function SettlePage() {
                     transition={{ delay: index * 0.1 }}
                     className="bg-[#E5E5FE] rounded-[25px] p-6 relative shadow-md"
                     >
+                  {/*결제자 및 계좌*/}    
                     <div className="mb-4">
-                         <p className="text-[#0C6DFF] font-bold">결제자: {data.payee}</p>
-                         <p className="text-[#0C6DFF] font-bold">{data.bank} {data.account}</p>
+                   <p className="text-[#0C6DFF] font-bold">결제자: {data.payee}</p>
+                   <p className="text-[#0C6DFF] font-extrabold ">
+                        {data.bank} {data.account}</p>         
                     </div>
-      
+                 
+                 {/*결제 내역*/}
+                 <div className="flex items-center gap-2 mt-2">
+                    <span className="whitespace-nowrap font-bold text-black">결제 내역</span>
+                    <div className="w-full border-t-2 border-dotted border-gray-500"></div>
+                  </div>
+
+                  {/*아이템 리스트*/}
+                  <div className="space-y-3">
+                   {data.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-black">
+                       <span>{item.name}</span>
+                       <span>{formatPrice(item.price)}</span>
+                      </div>
+                    ))} 
+                  </div>
+
+                    <div className="border-t-2 border-dotted border-gray-500 my-3"></div>
+
+                 {/*여행명 및 총 송금액 출력*/}
+                    <div className="space-y-2">
+                        <p className="text-[#0C6DFF] font-bold text-l">{data.tripName}</p>
+                        <div className="flex justify-between items-center text-black">
+                            <span>나의 총 송금액:</span>
+                            <span>{formatPrice(data.totalAmount) }</span>
+                        </div>
+                    </div>
+                 
                     <div
                          className="w-full h-10 mt-6 bg-[url('/barcode.png')] bg-repeat-x bg-contain opacity-60">          
                     </div>
