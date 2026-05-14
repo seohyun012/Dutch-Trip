@@ -179,11 +179,11 @@ export default function AddSchedulePage() {
       </main>
 
       {/* 4. 하단 일정 추가 버튼 */}
-      <footer className="absolute bottom-0 left-0 w-full p-6 pb-8 z-30 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none">
+      <footer className="absolute bottom-[40px] w-full flex justify-center z-30 pointer-events-none">
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={handleSubmit}
-          className="w-full h-[65px] bg-[#0C6DFF] rounded-[17px] shadow-[0_8px_30px_rgb(12,109,255,0.3)] text-white flex items-center justify-center transition-all pointer-events-auto"
+          className="w-[89.5%] h-[65px] bg-[#0C6DFF] rounded-[17px] shadow-[inset_0px_4px_10px_rgba(0,0,0,0.25)] text-white flex items-center justify-center transition-all pointer-events-auto"
           style={{ fontFamily: 'Giants', fontWeight: 700, fontSize: '24px' }}
         >
           일정 추가하기
