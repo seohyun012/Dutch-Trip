@@ -23,8 +23,8 @@ export default function AddTripPage() {
   >([]);
 
   const dateRefs = {
-    start: useRef<HTMLInputElement>(null),
-    end: useRef<HTMLInputElement>(null),
+    startDate: useRef<HTMLInputElement>(null),
+    endDate: useRef<HTMLInputElement>(null),
   };
 
   // 초기 랜덤 코드 로드
@@ -47,7 +47,12 @@ export default function AddTripPage() {
   };
 
   const handleCreateTrip = () => {
-    setTripData({ ...form, costs });
+    setTripData({
+      tripName: form.tripName,
+      startDate: form.startDate,
+      endDate: form.endDate,
+      costs: costs,
+    });
     router.push("/timeline");
   };
 
@@ -65,23 +70,26 @@ export default function AddTripPage() {
         />
       </div>
 
-      {/* 상단 내비게이션 바 */}
-      <header className="relative h-[52px] flex items-center px-4 z-10">
-        <button
-          onClick={() => router.back()}
-          className="p-1 bg-white/50 rounded-full shadow-sm"
-        >
-          <ChevronLeft size={24} />
-        </button>
-      </header>
+      {/* 상단 이전 버튼*/}
+      <button 
+        onClick={() => router.back()} 
+        className="absolute z-30 flex items-center justify-center"
+        style={{ left: '3.8%', top: '10px', width: '32px', height: '32px' }}
+      >
+        <ChevronLeft size={32} color="#000000" />
+      </button>
 
-      <main className="flex flex-col items-center gap-4 px-4 z-10 flex-grow">
+      <main 
+        className="flex flex-col items-center gap-4 px-4 z-10 flex-grow"
+        style={{ marginTop: '50px' }}
+        >
+
         {/* 여행 기본 정보 입력 */}
         <input
           placeholder="여행 이름 입력"
           value={form.tripName}
           onChange={(e) => setForm({ ...form, tripName: e.target.value })}
-          className="w-full h-20 bg-[#E5E5FE] rounded-2xl text-center text-2xl outline-none focus:ring-2 ring-blue-500/20 transition-all font-bold"
+          className="w-full h-20 bg-[#E5E5FE] rounded-2xl text-center text-2xl outline-none focus:ring-2 ring-blue-500/20 transition-all font-bold placeholder:text-[rgba(0,0,0,0.34)]"
         />
 
         <div className="w-full h-20 bg-[#E5E5FE] rounded-2xl flex items-center justify-center">
@@ -92,8 +100,8 @@ export default function AddTripPage() {
 
         {/* 일정 선택 */}
         {[
-          { key: "start", label: "여행 시작일" },
-          { key: "end", label: "여행 마지막일" },
+          { key: "startDate", label: "여행 시작일" },
+          { key: "endDate", label: "여행 마지막일" },
         ].map((item) => (
           <motion.div
             whileTap={{ scale: 0.98 }}
@@ -102,7 +110,7 @@ export default function AddTripPage() {
           >
             <button
               onClick={() =>
-                dateRefs[item.key as "start" | "end"].current?.showPicker()
+              (dateRefs as any)[item.key].current?.showPicker()
               }
               className="w-full h-full flex justify-between items-center px-6"
             >
@@ -118,7 +126,8 @@ export default function AddTripPage() {
             </button>
             <input
               type="date"
-              ref={dateRefs[item.key as "start" | "end"]}
+              // ref={dateRefs[item.key]} 형식으로 수정 필요
+              ref={(dateRefs as any)[item.key]}
               onChange={(e) => setForm({ ...form, [item.key]: e.target.value })}
               className="absolute inset-0 opacity-0 pointer-events-none"
             />
@@ -177,11 +186,12 @@ export default function AddTripPage() {
       </main>
 
       {/* 최종 제출 버튼 */}
-      <footer className="p-5 flex justify-center z-10 bg-gradient-to-t from-white via-white">
+      <footer className="absolute bottom-[40px] w-full flex justify-center z-30 pointer-events-none">
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleCreateTrip}
-          className="w-full h-16 bg-[#0C6DFF] rounded-2xl shadow-lg text-white text-2xl font-bold"
+          className="w-[89.5%] h-[65px] bg-[#0C6DFF] rounded-[17px] shadow-[inset_0px_4px_10px_rgba(0,0,0,0.25)] text-white flex items-center justify-center transition-all pointer-events-auto"
+          style={{ fontFamily: 'Giants', fontWeight: 700, fontSize: '24px' }}
         >
           여행 만들기
         </motion.button>
