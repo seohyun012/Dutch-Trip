@@ -84,7 +84,12 @@ export default function AddSchedulePage() {
 
       {/* 2. 시각적 배경 요소 */}
       <div className="absolute w-[299px] bottom-0 left-[-33px] opacity-40 pointer-events-none z-0">
-        <Image src="/bg-img.png" alt="bg" width={299} height={273} className="object-contain" />
+        <Image 
+        src="/bg-img.png" 
+        alt="bg" 
+        width={299} 
+        height={273} 
+        className="object-contain" />
       </div>
 
       {/* 3. 메인 폼 영역 */}
@@ -174,18 +179,12 @@ export default function AddSchedulePage() {
       </main>
 
       {/* 4. 하단 일정 추가 버튼 */}
-      <footer className="absolute w-full flex justify-center z-20 pointer-events-none" style={{ bottom: '4%' }}>
+      <footer className="absolute bottom-0 left-0 w-full p-6 pb-8 z-30 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none">
         <motion.button
-          whileTap={{ scale: 0.96 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleSubmit}
-          className="bg-[#0C6DFF] text-white pointer-events-auto"
-          style={{ 
-            width: '89.5%',
-            height: '65px', 
-            borderRadius: '17px',
-            boxShadow: 'inset 0px 4px 10px rgba(0, 0, 0, 0.25)',
-            ...giantsFontStyle // 버튼 폰트 적용 (색상은 className의 text-white가 덮어씌움)
-          }}
+          className="w-full h-[65px] bg-[#0C6DFF] rounded-[17px] shadow-[0_8px_30px_rgb(12,109,255,0.3)] text-white flex items-center justify-center transition-all pointer-events-auto"
+          style={{ fontFamily: 'Giants', fontWeight: 700, fontSize: '24px' }}
         >
           일정 추가하기
         </motion.button>
