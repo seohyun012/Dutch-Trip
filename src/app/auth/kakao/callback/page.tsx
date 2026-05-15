@@ -1,8 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+
 
 export default function KakaoCallback() {
+  const router = useRouter(); 
+  const searchParams = useSearchParams();
+
   return (
     <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-center p-8">
       {/* 로그인 콜백 페이지*/}

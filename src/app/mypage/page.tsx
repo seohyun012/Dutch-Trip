@@ -185,7 +185,7 @@ export default function Mypage() {
             {/*송금 버튼*/}
             <footer className="fixed bottom-6 left-0 w-full px-6 z-20">
                 <button
-                    onClick={() => alert("송금 페이지로 이동")}   //router.push("송금하기페이지 /경로")}
+                    onClick={() => router.push("/pay")}
                     className="w-full h-16 bg-[#E5E5FE] rounded-[20px] flex items-center justify-center shadow-lg active:scale-95 transition-transform">
                     <span className="text-xl font-bold text-black">송금으로 이동</span>
                 </button>
