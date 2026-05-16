@@ -4,13 +4,15 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ExpenseItem } from "@/types"; //메뉴 하나
 import { useSettleStore } from "@/store/useSettleStore";
+import type { Participant } from "@/types";
 
 interface Props {
   //이 컴포넌트가 받아야하는 데이터이름:타입
   items: ExpenseItem[];
   currentUserId: number; //현재유저
   expenseId: number;
-  members: { user_id: number; nickname: string; role: string }[];
+  members: Participant[];
+  readOnly?: boolean;
 }
 
 export default function MenuPanel({
@@ -18,6 +20,7 @@ export default function MenuPanel({
   currentUserId,
   expenseId,
   members,
+  readOnly = false,
 }: Props) {
   const [expanded, setExpanded] = useState<number | null>(null); //각메뉴 먹은사람 펼치기
   const { selectedItems, toggleParticipant } = useSettleStore(); //toggleParticipant: 메뉴선택/해제하는 함수
@@ -34,20 +37,32 @@ export default function MenuPanel({
       {items.map((item, idx) => {
         //items:영수증 안 메뉴목록
         const isOpen = expanded === idx;
-        const selected = isSelected(item.item_name);
+        const selected = !readOnly && isSelected(item.item_name);
+
+        if (readOnly) {
+          return (
+            <div
+              key={idx}
+              className="px-1 py-2 flex items-center text-black"
+              style={{ backgroundColor: "#E5E5FE" }}
+            >
+              <span className="flex-1 text-xl">{item.item_name}</span>
+              <span className="text-xl">{item.price.toLocaleString()}원</span>
+            </div>
+          );
+        }
 
         return (
           <div
             key={idx}
-            onClick={() =>
+            onClick={() => {
               toggleParticipant(
-                //어떤 메뉴를 누르면 이 값을 함수에게 넘겨준다.
                 expenseId,
                 item.item_name,
                 item.price,
                 currentUserId,
-              )
-            }
+              );
+            }}
             className="px-1 py-1 cursor-pointer" //cursor-pointer: 마우스 올리면 손가락 모양으로 바뀜
             style={{ backgroundColor: selected ? "#85B5FF" : "#E5E5FE" }}
           >

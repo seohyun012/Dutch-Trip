@@ -9,9 +9,9 @@ import ExpenseCard from "./ExpenseCard";
 const CURRENT_USER_ID = 1;
 
 const mockMembers = [
-  { user_id: 1, nickname: "최서현", role: "방장" },
-  { user_id: 2, nickname: "김선태", role: "일반" },
-  { user_id: 3, nickname: "이지은", role: "일반" },
+  { user_id: 1, nickname: "최서현" },
+  { user_id: 2, nickname: "김선태" },
+  { user_id: 3, nickname: "이지은" },
 ];
 
 // ── 더미 데이터 ──
@@ -39,8 +39,10 @@ const mockExpenses: Expense[] = [
   {
     expense_id: 2,
     title: "대성리 피자",
+    receipt_image_url: "https://example.com/receipt1.jpg",
     total_amount: 45000,
     expense_type: "추가금액",
+    split_type: "개인",
     payment_time: "2026-05-01T12:00:00",
     payer: { user_id: 1, nickname: "최서현" },
     item_count: 4,
@@ -70,18 +72,38 @@ const mockExpenses: Expense[] = [
   {
     expense_id: 3,
     title: "영수증1",
+    receipt_image_url: "https://example.com/receipt1.jpg",
     total_amount: 10000,
     expense_type: "추가금액",
+    split_type: "더치",
     payment_time: "2026-05-01T16:00:00",
     payer: { user_id: 2, nickname: "김선태" },
-    item_count: 0,
-    items: [],
+    item_count: 3,
+    items: [
+      {
+        item_name: "파스타",
+        price: 10000,
+        participants: [],
+      },
+      {
+        item_name: "피자",
+        price: 15000,
+        participants: [],
+      },
+      {
+        item_name: "똥",
+        price: 18000,
+        participants: [],
+      },
+    ],
   },
   {
     expense_id: 4,
     title: "영수증2",
+    receipt_image_url: "https://example.com/receipt1.jpg",
     total_amount: 10000,
     expense_type: "추가금액",
+    split_type: "더치",
     payment_time: "2026-05-02T21:45:00",
     payer: { user_id: 2, nickname: "김선태" },
     item_count: 0,
@@ -150,7 +172,6 @@ export default function ExpenseTab() {
             key={e.expense_id} // React가 리스트 항목을 구분하는 고유 키
             expense={e}
             currentUserId={CURRENT_USER_ID}
-            isFixed={true}
             members={mockMembers}
           />
         ))}
@@ -242,7 +263,6 @@ export default function ExpenseTab() {
                     key={e.expense_id}
                     expense={e}
                     currentUserId={CURRENT_USER_ID}
-                    isFixed={false}
                     members={mockMembers} // 추가
                   />
                 </div>
