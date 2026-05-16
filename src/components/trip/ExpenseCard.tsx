@@ -78,11 +78,10 @@ export default function ExpenseCard({
           3. items 배열에 데이터가 있어야 함 (length > 0)
       */}
       {!isFixed && menuOpen && expense.items.length > 0 && (
-        <div className="bg-[#E5E5FE] px-2">
+        <div className="absolute top-full left-0 w-full bg-[#E5E5FE] z-20">
           <MenuPanel
             items={expense.items}
             currentUserId={currentUserId}
-            currentUserNickname="최서현"
             expenseId={expense.expense_id}
             members={members}
           />
