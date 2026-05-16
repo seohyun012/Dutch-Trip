@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Expense } from "@/types"; //Expense 타입 가져오기
 import MenuPanel from "./MenuPanel";
+import { useSettleStore } from "@/store/useSettleStore";
 
 interface Props {
   // 이컴포넌트가 받아야하는 데이터 이름:타입 정의
@@ -19,6 +20,12 @@ export default function ExpenseCard({
   members,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴선택 누르면 메뉴패널 열고닫기
+  const { selectedExpenses, toggleExpenseParticipant } = useSettleStore();
+  //selectedExpenses: 내가 선택한 영수증들을 담음. toggleExpenseParticipant: 영수증 선택/해제하는 함수
+  const isSelected = selectedExpenses.some(
+    //지금이게 선택 바구니에 있는지 확인.
+    (e) => e.expense_id === expense.expense_id,
+  );
 
   return (
     // relative: 내부 요소들의 absolute 기준점이 됨
@@ -31,9 +38,19 @@ export default function ExpenseCard({
         padding은 노치(물결) 안쪽 여백을 주기 위해 인라인 style로 설정.
       */}
       <div
+        onClick={() =>
+          toggleExpenseParticipant(
+            expense.expense_id,
+            expense.total_amount,
+            currentUserId,
+          )
+        }
+        className="cursor-pointer"
         style={{
-          backgroundImage: "url('/whiteboxnew.png')",
-          backgroundSize: "100% 100%", //이미지가 div 크기에 맞게 늘어남 (좌우 노치도 함께 늘어남)
+          backgroundImage: isSelected
+            ? "url('/blueboxnew.png')"
+            : "url('/whiteboxnew.png')",
+          backgroundSize: "100% 100%",
           padding: "14px 28px",
         }}
       >
@@ -45,6 +62,16 @@ export default function ExpenseCard({
           <p>총 가격: {expense.total_amount.toLocaleString()}원</p>
           {/*천 단위마다 , 찍기*/}
           <p>결제자: {expense.payer.nickname}</p>
+          <p>
+            참여자:{" "}
+            {selectedExpenses //선택한 영수증 바구니
+              .find((e) => e.expense_id === expense.expense_id)
+              ?.participant_user_ids.map(
+                (id) => members.find((m) => m.user_id === id)?.nickname, // id를 닉네임으로 변환
+              )
+              .filter(Boolean) //undefined, null 제거
+              .join(", ") || "없음"}
+          </p>
         </div>
 
         {/*
@@ -53,19 +80,30 @@ export default function ExpenseCard({
           추가금액일 때만 영수증보기 / 글로쓰기 / 메뉴선택 버튼이 나옴.
         */}
         {!isFixed && (
-          <div className="flex gap-1 mt-8">
-            <button className="flex-1 text-lg bg-[#E5E5FE] py-1.5 text-black">
+          <div className="flex gap-1 mt-8 mb-1">
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
+            >
               영수증 보기
             </button>
-            <button className="flex-1 text-lg bg-[#E5E5FE] py-1.5 text-black">
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
+            >
               글로 쓰기
             </button>
-            <button
-              onClick={() => setMenuOpen((v) => !v)}
-              className="flex-1 text-lg bg-[#E5E5FE] py-1.5 text-black"
-            >
-              메뉴 선택
-            </button>
+            {expense.items.length > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen((v) => !v);
+                }}
+                className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
+              >
+                메뉴 선택
+              </button>
+            )}
           </div>
         )}
       </div>
