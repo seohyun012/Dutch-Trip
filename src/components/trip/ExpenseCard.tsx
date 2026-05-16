@@ -36,7 +36,6 @@ export default function ExpenseCard({
         ── 티켓 모양 카드 본체 ──
         whitebox.png를 background-image로 사용.
         backgroundSize: "100% 100%" → 이미지가 div 크기에 맞게 늘어남 (좌우 노치도 함께 늘어남).
-        backgroundColor: transparent → 흰 배경이 이미지 뒤에 깔리지 않도록 제거.
         padding은 노치(물결) 안쪽 여백을 주기 위해 인라인 style로 설정.
       */}
       <div
@@ -68,7 +67,7 @@ export default function ExpenseCard({
           {!isFixed && (
             <p>
               참여자:{" "}
-              {selectedExpenses
+              {selectedExpenses //useSettleStore의 selectedExpenses에서 가져온 id를 여기서 nickname으로 반환
                 .find((e) => e.expense_id === expense.expense_id) //선택한 영수증 바구니
                 ?.participant_user_ids.map(
                   (id) => members.find((m) => m.user_id === id)?.nickname,

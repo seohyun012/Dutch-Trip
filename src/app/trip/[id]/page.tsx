@@ -13,8 +13,7 @@ export default function TripPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id: _id } = use(params);
-  //const { id } = use(params); api 후 이걸로 변경
+  const { id } = use(params);
   const router = useRouter(); //페이지이동
   const [activeTab, setActiveTab] = useState<Tab>("영수증"); //탭선택 함수, 처음에는 영수증
 
@@ -82,8 +81,8 @@ export default function TripPage({
       {/* 하단 고정 버튼 */}
       <div className="sticky bottom-0 px-5 pb-4 bg-white flex flex-col gap-4 z-20">
         <button
+          onClick={() => router.push(`/trip/${id}/add-expense`)}
           className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
-          //flex items-center: 세로기준가운데, justify-center: 가로기준 가운데
         >
           <Plus size={34} strokeWidth={4} />
         </button>
