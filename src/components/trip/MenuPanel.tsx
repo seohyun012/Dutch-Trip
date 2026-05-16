@@ -51,33 +51,34 @@ export default function MenuPanel({
             className="px-1 py-1 cursor-pointer" //cursor-pointer: 마우스 올리면 손가락 모양으로 바뀜
             style={{ backgroundColor: selected ? "#85B5FF" : "#E5E5FE" }}
           >
-            <div className="flex items-center">
-              <span className="flex-1 text-base">{item.item_name}</span>
-              <span className="text-base text-gray-700 mr-2">
-                {item.price.toLocaleString()}원
+            <div className="flex items-center text-black">
+              <span className="flex-1 text-xl">{item.item_name}</span>
+              <span className="text-xl">
+                {item.price.toLocaleString()}원 {/*천 단위마다 , 찍기*/}
               </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setExpanded(isOpen ? null : idx);
+                  setExpanded(isOpen ? null : idx); //열려있으면 닫고(null)
                 }}
-                className="text-gray-400"
+                className="text-black"
               >
-                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                {isOpen ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
               </button>
             </div>
 
             {isOpen && (
-              <div className="mt-1 text-sm text-gray-500">
+              <div className="text-lg text-black">
                 {(() => {
                   const found = selectedItems.find(
+                    //선택된 메뉴 바구니에서 이 메뉴 찾기
                     (i) =>
                       i.expense_id === expenseId &&
                       i.item_name === item.item_name,
                   );
                   const names = found?.participant_user_ids
                     .map(
-                      (id) => members.find((m) => m.user_id === id)?.nickname,
+                      (id) => members.find((m) => m.user_id === id)?.nickname, // id를 닉네임으로 변환
                     )
                     .filter(Boolean)
                     .join(", ");

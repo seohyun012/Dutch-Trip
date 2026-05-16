@@ -8,10 +8,19 @@ interface SelectedItem { //내가 선택한 메뉴 하나
   participant_user_ids: number[];
 }
 
+interface SelectedExpense {
+  expense_id: number;
+  total_amount: number;
+  participant_user_ids: number[];
+}
+
 interface SettleStore { 
   selectedItems: SelectedItem[]; //내가 선택한 메뉴들을 담음
   toggleParticipant: (expense_id: number, item_name: string, price: number, user_id: number) => void;
   //메뉴선택/해제하는 함수
+
+  selectedExpenses: SelectedExpense[];
+  toggleExpenseParticipant: (expense_id: number, total_amount: number, user_id: number) => void;
 }
 
 export const useSettleStore = create<SettleStore>()(
@@ -41,6 +50,31 @@ export const useSettleStore = create<SettleStore>()(
                   : i
               )
               .filter((i) => i.participant_user_ids.length > 0), //선택된 메뉴에서 지움.
+          };
+        }),
+
+      selectedExpenses: [],
+      toggleExpenseParticipant: (expense_id, total_amount, user_id) =>
+        set((state) => {
+          const existing = state.selectedExpenses.find(
+            (e) => e.expense_id === expense_id
+          );
+          if (!existing) {
+            return {
+              selectedExpenses: [...state.selectedExpenses, { expense_id, total_amount, participant_user_ids: [user_id] }],
+            };
+          }
+          const hasUser = existing.participant_user_ids.includes(user_id);
+          return {
+            selectedExpenses: state.selectedExpenses
+              .map((e) =>
+                e.expense_id === expense_id
+                  ? { ...e, participant_user_ids: hasUser
+                      ? e.participant_user_ids.filter((id) => id !== user_id)
+                      : [...e.participant_user_ids, user_id] }
+                  : e
+              )
+              .filter((e) => e.participant_user_ids.length > 0),
           };
         }),
     }),
