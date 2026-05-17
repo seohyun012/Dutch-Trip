@@ -5,19 +5,23 @@ import type { Expense } from "@/types"; //Expense 타입 가져오기
 import MenuPanel from "./MenuPanel";
 import { useSettleStore } from "@/store/useSettleStore";
 import type { Participant } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface Props {
   // 이컴포넌트가 받아야하는 데이터 이름:타입 정의
   expense: Expense; // 영수증 한 장의 전체 데이터
   currentUserId: number; // 현재 로그인한 유저 ID (내 메뉴 하이라이트용)
   members: Participant[];
+  tripId: number;
 }
 
 export default function ExpenseCard({
   expense,
   currentUserId,
   members,
+  tripId,
 }: Props) {
+  const router = useRouter();
   const isFixed = expense.expense_type === "고정금액";
   const isPersonal = expense.split_type === "개인";
   const isDutch = expense.split_type === "더치";
@@ -36,7 +40,6 @@ export default function ExpenseCard({
         ── 티켓 모양 카드 본체 ──
         whitebox.png를 background-image로 사용.
         backgroundSize: "100% 100%" → 이미지가 div 크기에 맞게 늘어남 (좌우 노치도 함께 늘어남).
-        backgroundColor: transparent → 흰 배경이 이미지 뒤에 깔리지 않도록 제거.
         padding은 노치(물결) 안쪽 여백을 주기 위해 인라인 style로 설정.
       */}
       <div
@@ -68,7 +71,7 @@ export default function ExpenseCard({
           {!isFixed && (
             <p>
               참여자:{" "}
-              {selectedExpenses
+              {selectedExpenses //useSettleStore의 selectedExpenses에서 가져온 id를 여기서 nickname으로 반환
                 .find((e) => e.expense_id === expense.expense_id) //선택한 영수증 바구니
                 ?.participant_user_ids.map(
                   (id) => members.find((m) => m.user_id === id)?.nickname,
@@ -97,7 +100,12 @@ export default function ExpenseCard({
               영수증 보기
             </button>
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(
+                  `/trip/${tripId}/retouch-expense?expenseId=${expense.expense_id}`,
+                );
+              }}
               className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
             >
               글로 쓰기
@@ -136,7 +144,7 @@ export default function ExpenseCard({
           3. items 배열에 데이터가 있어야 함 (count > 0)
       */}
       {menuOpen && (isPersonal || (isDutch && expense.item_count > 0)) && (
-        <div className="absolute top-full left-0 w-full bg-[#E5E5FE] z-50">
+        <div className="absolute top-full left-0 w-full bg-[#E5E5FE] z-20">
           <MenuPanel
             items={expense.items}
             currentUserId={currentUserId}

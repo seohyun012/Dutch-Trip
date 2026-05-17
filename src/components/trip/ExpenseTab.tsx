@@ -4,112 +4,15 @@ import { useState } from "react"; // useState: 세트만들어주는 함수
 import { ChevronDown } from "lucide-react";
 import type { Expense } from "@/types"; // @/ : /src
 import ExpenseCard from "./ExpenseCard";
+import { useExpenseStore } from "@/store/useExpenseStore";
 
 // 현재 로그인 유저 ID - 실제 서비스에서는 Zustand store(useAuthStore)에서 가져옴
 const CURRENT_USER_ID = 1;
 
-const mockMembers = [
-  { user_id: 1, nickname: "최서현" },
-  { user_id: 2, nickname: "김선태" },
-  { user_id: 3, nickname: "이지은" },
-];
-
-// ── 더미 데이터 ──
-// 실제 API 연동 전 화면 확인용. 나중에 useTripQuery 훅으로 교체 예정.
-const mockExpenses: Expense[] = [
-  //Expense 타입 여러개를 담는 상수 배열
-  {
-    expense_id: 1,
-    title: "호텔",
-    total_amount: 50000,
-    expense_type: "고정금액",
-    payer: { user_id: 1, nickname: "최서현" },
-    item_count: 0,
-    items: [],
-  },
-  {
-    expense_id: 10,
-    title: "저녁밥",
-    total_amount: 120000,
-    expense_type: "고정금액",
-    payer: { user_id: 1, nickname: "최서현" },
-    item_count: 0,
-    items: [],
-  },
-  {
-    expense_id: 2,
-    title: "대성리 피자",
-    receipt_image_url: "https://example.com/receipt1.jpg",
-    total_amount: 45000,
-    expense_type: "추가금액",
-    split_type: "개인",
-    payment_time: "2026-05-01T12:00:00",
-    payer: { user_id: 1, nickname: "최서현" },
-    item_count: 4,
-    items: [
-      {
-        item_name: "알리올리오 파스타",
-        price: 10000,
-        participants: [],
-      },
-      {
-        item_name: "투움바 파스타",
-        price: 15000,
-        participants: [],
-      },
-      {
-        item_name: "마르게리따 피자",
-        price: 18000,
-        participants: [],
-      },
-      {
-        item_name: "콜라 500ml",
-        price: 2000,
-        participants: [],
-      },
-    ],
-  },
-  {
-    expense_id: 3,
-    title: "영수증1",
-    receipt_image_url: "https://example.com/receipt1.jpg",
-    total_amount: 10000,
-    expense_type: "추가금액",
-    split_type: "더치",
-    payment_time: "2026-05-01T16:00:00",
-    payer: { user_id: 2, nickname: "김선태" },
-    item_count: 3,
-    items: [
-      {
-        item_name: "파스타",
-        price: 10000,
-        participants: [],
-      },
-      {
-        item_name: "피자",
-        price: 15000,
-        participants: [],
-      },
-      {
-        item_name: "똥",
-        price: 18000,
-        participants: [],
-      },
-    ],
-  },
-  {
-    expense_id: 4,
-    title: "영수증2",
-    receipt_image_url: "https://example.com/receipt1.jpg",
-    total_amount: 10000,
-    expense_type: "추가금액",
-    split_type: "더치",
-    payment_time: "2026-05-02T21:45:00",
-    payer: { user_id: 2, nickname: "김선태" },
-    item_count: 0,
-    items: [],
-  },
-];
+interface Props {
+  members: { user_id: number; nickname: string }[];
+  tripId: number;
+}
 
 function formatTimeParts(iso: string) {
   //formatTimeParts: ISO 날짜 문자열에서 시(hh)와 분(mm)을 분리해서 반환.
@@ -140,8 +43,9 @@ function groupByDay(expenses: Expense[]) {
   })); //같은 date애들을 묶어서 이름붙이고 같이 정렬된 배열반환
 }
 
-export default function ExpenseTab() {
+export default function ExpenseTab({ members, tripId }: Props) {
   // 메인함수
+  const { expenses: mockExpenses } = useExpenseStore();
   const fixed = mockExpenses.filter((e) => e.expense_type === "고정금액"); // expense_type 기준으로 고정금액 / 추가금액 분리
   const additional = mockExpenses.filter((e) => e.expense_type === "추가금액");
   //additional, mockExpenses: expense타입 배열
@@ -172,7 +76,8 @@ export default function ExpenseTab() {
             key={e.expense_id} // React가 리스트 항목을 구분하는 고유 키
             expense={e}
             currentUserId={CURRENT_USER_ID}
-            members={mockMembers}
+            members={members}
+            tripId={tripId}
           />
         ))}
       </div>
@@ -263,7 +168,7 @@ export default function ExpenseTab() {
                     key={e.expense_id}
                     expense={e}
                     currentUserId={CURRENT_USER_ID}
-                    members={mockMembers} // 추가
+                    members={members}
                   />
                 </div>
               </div>

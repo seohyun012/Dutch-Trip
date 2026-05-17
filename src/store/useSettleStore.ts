@@ -70,8 +70,8 @@ export const useSettleStore = create<SettleStore>()(
               .map((e) =>
                 e.expense_id === expense_id
                   ? { ...e, participant_user_ids: hasUser
-                      ? e.participant_user_ids.filter((id) => id !== user_id)
-                      : [...e.participant_user_ids, user_id] }
+                      ? e.participant_user_ids.filter((id) => id !== user_id)//있으면 제거
+                      : [...e.participant_user_ids, user_id] }//없으면 추가
                   : e
               )
               .filter((e) => e.participant_user_ids.length > 0),

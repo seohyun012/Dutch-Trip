@@ -20,7 +20,7 @@ export default function MenuPanel({
   currentUserId,
   expenseId,
   members,
-  readOnly = false,
+  readOnly = false, //안넘겨주면 false
 }: Props) {
   const [expanded, setExpanded] = useState<number | null>(null); //각메뉴 먹은사람 펼치기
   const { selectedItems, toggleParticipant } = useSettleStore(); //toggleParticipant: 메뉴선택/해제하는 함수
@@ -46,8 +46,10 @@ export default function MenuPanel({
               className="px-1 py-2 flex items-center text-black"
               style={{ backgroundColor: "#E5E5FE" }}
             >
-              <span className="flex-1 text-xl">{item.item_name}</span>
-              <span className="text-xl">{item.price.toLocaleString()}원</span>
+              <span className="flex-1 text-xl px-1">{item.item_name}</span>
+              <span className="text-xl px-1">
+                {item.price.toLocaleString()}원
+              </span>
             </div>
           );
         }
@@ -83,7 +85,7 @@ export default function MenuPanel({
             </div>
 
             {isOpen && (
-              <div className="text-lg text-black">
+              <div className="text-base text-black">
                 {(() => {
                   const found = selectedItems.find(
                     //선택된 메뉴 바구니에서 이 메뉴 찾기
@@ -91,7 +93,7 @@ export default function MenuPanel({
                       i.expense_id === expenseId &&
                       i.item_name === item.item_name,
                   );
-                  const names = found?.participant_user_ids
+                  const names = found?.participant_user_ids //id꺼내기
                     .map(
                       (id) => members.find((m) => m.user_id === id)?.nickname, // id를 닉네임으로 변환
                     )
