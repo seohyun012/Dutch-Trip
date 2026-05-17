@@ -13,6 +13,7 @@ interface Cost {
   id: number;
   item: string;
   price: string;
+  payer: string; // ★ 추가됨: 결제자 이름 저장
 }
 
 interface TripState {

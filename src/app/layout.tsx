@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Providers from "./providers"; // ★ 추가: 방금 만든 Providers 불러오기
 
 // Giants 폰트 설정
 const giants = localFont({
@@ -31,7 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${giants.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {/* ★ 추가: 앱 전체(children)를 Providers로 감싸주기 */}
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
