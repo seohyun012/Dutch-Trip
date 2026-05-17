@@ -61,7 +61,14 @@ export default function ExpenseCard({
         }}
       >
         {/* 제목 */}
-        <p className="font-normal text-lg pb-4">{expense.title}</p>
+        <div className="flex items-center justify-between pb-4">
+          <p className="font-normal text-lg">{expense.title}</p>
+          {expense.split_type && (
+            <p className="font-normal text-lg text-[#0C6DFF]">
+              {expense.split_type === "개인" ? "개인메뉴" : "더치페이"}
+            </p>
+          )}
+        </div>
 
         {/* 총 가격 */}
         <div className="font-normal text-xl text-black">

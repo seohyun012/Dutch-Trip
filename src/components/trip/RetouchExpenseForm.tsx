@@ -6,6 +6,7 @@ import type { Expense, ExpenseItem, Participant } from "@/types";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import { useExpenseStore } from "@/store/useExpenseStore";
+import { Plus } from "lucide-react";
 
 interface Props {
   tripId: number;
@@ -46,6 +47,13 @@ export default function RetouchExpenseForm({
     });
   }
 
+  function handleAddItem() {
+    setItems((prev) => [
+      ...prev,
+      { item_name: "", price: 0, participants: [] },
+    ]);
+  }
+
   function handleSubmit() {
     const payer = members.find((m) => m.user_id === payerUserId)!; // 멤버 목록에서 선택된 결제자 ID랑 일치하는 사람 찾기
     updateExpense({
@@ -71,13 +79,13 @@ export default function RetouchExpenseForm({
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="text-xl text-[#0C6DFF] bg-transparent w-1/2" //bg-transparent: 배경 투명, w-1/2: 너비를 부모 절반
+            className="text-xl text-[#0C6DFF] bg-transparent w-1/2 outline-none" //bg-transparent: 배경 투명, w-1/2: 너비를 부모 절반
           />
           <input
             value={totalAmount}
             onChange={(e) => setTotalAmount(Number(e.target.value))}
             type="number"
-            className="text-xl text-[#0C6DFF] w-1/3 text-right"
+            className="text-xl text-[#0C6DFF] w-1/3 text-right outline-none"
           />
         </div>
 
@@ -88,24 +96,31 @@ export default function RetouchExpenseForm({
           {items.map((item, idx) => (
             <div
               key={idx}
-              className="flex justify-between text-xl text-black py-1"
+              className="flex justify-between text-xl text-black py-1 outline-none"
             >
               <input
                 value={item.item_name}
                 onChange={(e) =>
                   handleItemChange(idx, "item_name", e.target.value)
                 }
-                className="bg-transparent w-1/2"
+                className="bg-transparent w-1/2 outline-none"
               />
               <input
                 value={item.price}
                 onChange={(e) => handleItemChange(idx, "price", e.target.value)}
                 type="number"
-                className="bg-transparent w-1/3 text-right"
+                className="bg-transparent w-1/3 text-right outline-none"
               />
             </div>
           ))}
         </div>
+
+        <button
+          onClick={handleAddItem}
+          className="w-full py-2 text-xl bg-white rounded-lg my-2 flex items-center justify-center"
+        >
+          <Plus size={25} strokeWidth={2} />
+        </button>
 
         <hr className="border-dashed border-black my-2" />
 
