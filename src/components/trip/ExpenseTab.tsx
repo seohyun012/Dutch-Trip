@@ -169,6 +169,7 @@ export default function ExpenseTab({ members, tripId }: Props) {
                     expense={e}
                     currentUserId={CURRENT_USER_ID}
                     members={members}
+                    tripId={tripId}
                   />
                 </div>
               </div>

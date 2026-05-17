@@ -1,11 +1,12 @@
 "use client";
 
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plane, Receipt, ChevronLeft, Plus } from "lucide-react";
 import ExpenseTab from "@/components/trip/ExpenseTab";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
+import ScheduleTab from "@/components/trip/ScheduleTab";
 
 type Tab = "일정" | "영수증";
 
@@ -23,7 +24,10 @@ export default function TripPage({
     { user_id: 3, nickname: "이지은" },
   ];
   const router = useRouter(); //페이지이동
-  const [activeTab, setActiveTab] = useState<Tab>("영수증"); //탭선택 함수, 처음에는 영수증
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<Tab>(
+    searchParams.get("tab") === "영수증" ? "영수증" : "일정",
+  );
 
   return (
     <main className="w-full min-h-screen bg-[#FFFFFF] flex flex-col">
@@ -67,21 +71,29 @@ export default function TripPage({
           <ExpenseTab members={mockMembers} tripId={Number(id)} />
         )}{" "}
         {/*참이면 뒤 실행*/}
-        {activeTab === "일정" && (
-          <div className="flex items-center justify-center h-40 text-gray-400 text-sm">
-            일정 탭 준비 중
-          </div>
-        )}
+        {activeTab === "일정" && <ScheduleTab />}
       </div>
       {/* 하단 고정 버튼 */}
       <div className="sticky bottom-0 px-5 pb-4 bg-white flex flex-col gap-4 z-20">
-        <button
-          onClick={() => router.push(`/trip/${id}/add-expense`)}
-          className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
-        >
-          <Plus size={34} strokeWidth={4} />
-        </button>
-        <Button label="정산 하기" />
+        {activeTab === "영수증" && (
+          <>
+            <button
+              onClick={() => router.push(`/trip/${id}/add-expense`)}
+              className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
+            >
+              <Plus size={32} strokeWidth={4} />
+            </button>
+            <Button label="정산 하기" />
+          </>
+        )}
+        {activeTab === "일정" && (
+          <button
+            onClick={() => router.push(`/trip/${id}/add-schedule`)}
+            className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
+          >
+            <Plus size={32} strokeWidth={4} />
+          </button>
+        )}
       </div>
     </main>
   );

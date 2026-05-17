@@ -85,7 +85,7 @@ export default function AddExpenseForm({ tripId, members, onSubmit }: Props) {
     };
 
     onSubmit(newExpense); //add-expense-page에서 handleSubmit실행->newExpense를 새 영수증(store)에 추가
-    router.back();
+    router.push(`/trip/${tripId}?tab=영수증`);
   }
 
   return (
