@@ -85,7 +85,7 @@ export default function MenuPanel({
             </div>
 
             {isOpen && (
-              <div className="text-lg text-black">
+              <div className="text-base text-black">
                 {(() => {
                   const found = selectedItems.find(
                     //선택된 메뉴 바구니에서 이 메뉴 찾기

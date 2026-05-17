@@ -5,19 +5,23 @@ import type { Expense } from "@/types"; //Expense 타입 가져오기
 import MenuPanel from "./MenuPanel";
 import { useSettleStore } from "@/store/useSettleStore";
 import type { Participant } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface Props {
   // 이컴포넌트가 받아야하는 데이터 이름:타입 정의
   expense: Expense; // 영수증 한 장의 전체 데이터
   currentUserId: number; // 현재 로그인한 유저 ID (내 메뉴 하이라이트용)
   members: Participant[];
+  tripId: number;
 }
 
 export default function ExpenseCard({
   expense,
   currentUserId,
   members,
+  tripId,
 }: Props) {
+  const router = useRouter();
   const isFixed = expense.expense_type === "고정금액";
   const isPersonal = expense.split_type === "개인";
   const isDutch = expense.split_type === "더치";
@@ -96,7 +100,12 @@ export default function ExpenseCard({
               영수증 보기
             </button>
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(
+                  `/trip/${tripId}/retouch-expense?expenseId=${expense.expense_id}`,
+                );
+              }}
               className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
             >
               글로 쓰기
@@ -135,7 +144,7 @@ export default function ExpenseCard({
           3. items 배열에 데이터가 있어야 함 (count > 0)
       */}
       {menuOpen && (isPersonal || (isDutch && expense.item_count > 0)) && (
-        <div className="absolute top-full left-0 w-full bg-[#E5E5FE] z-50">
+        <div className="absolute top-full left-0 w-full bg-[#E5E5FE] z-20">
           <MenuPanel
             items={expense.items}
             currentUserId={currentUserId}

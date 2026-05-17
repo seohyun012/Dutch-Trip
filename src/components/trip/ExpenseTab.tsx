@@ -9,11 +9,10 @@ import { useExpenseStore } from "@/store/useExpenseStore";
 // 현재 로그인 유저 ID - 실제 서비스에서는 Zustand store(useAuthStore)에서 가져옴
 const CURRENT_USER_ID = 1;
 
-const mockMembers = [
-  { user_id: 1, nickname: "최서현" },
-  { user_id: 2, nickname: "김선태" },
-  { user_id: 3, nickname: "이지은" },
-];
+interface Props {
+  members: { user_id: number; nickname: string }[];
+  tripId: number;
+}
 
 function formatTimeParts(iso: string) {
   //formatTimeParts: ISO 날짜 문자열에서 시(hh)와 분(mm)을 분리해서 반환.
@@ -44,7 +43,7 @@ function groupByDay(expenses: Expense[]) {
   })); //같은 date애들을 묶어서 이름붙이고 같이 정렬된 배열반환
 }
 
-export default function ExpenseTab() {
+export default function ExpenseTab({ members, tripId }: Props) {
   // 메인함수
   const { expenses: mockExpenses } = useExpenseStore();
   const fixed = mockExpenses.filter((e) => e.expense_type === "고정금액"); // expense_type 기준으로 고정금액 / 추가금액 분리
@@ -77,7 +76,8 @@ export default function ExpenseTab() {
             key={e.expense_id} // React가 리스트 항목을 구분하는 고유 키
             expense={e}
             currentUserId={CURRENT_USER_ID}
-            members={mockMembers}
+            members={members}
+            tripId={tripId}
           />
         ))}
       </div>
@@ -168,7 +168,7 @@ export default function ExpenseTab() {
                     key={e.expense_id}
                     expense={e}
                     currentUserId={CURRENT_USER_ID}
-                    members={mockMembers} // 추가
+                    members={members}
                   />
                 </div>
               </div>

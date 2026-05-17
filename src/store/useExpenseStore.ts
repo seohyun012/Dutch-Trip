@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { Expense } from "@/types";
 
 // ExpenseTab의 더미데이터 초기값
-const initialExpenses: Expense[] = [
+const mockExpenses: Expense[] = [
   {
     expense_id: 1,
     title: "호텔",
@@ -67,15 +67,22 @@ const initialExpenses: Expense[] = [
   },
 ];
 
-interface ExpenseStore {
+interface ExpenseStore { //store안에 아래 두개 가 꼭 필요하다고 전해줌.
   expenses: Expense[];
   addExpense: (expense: Expense) => void;
+  updateExpense: (updated: Expense) => void;
 }
 
 export const useExpenseStore = create<ExpenseStore>((set) => ({
-  expenses: initialExpenses,
+  expenses: mockExpenses,
   addExpense: (expense) =>
     set((state) => ({
-      expenses: [...state.expenses, expense],
+      expenses: [...state.expenses, expense],// 기존 영수증 목록에 새 영수증 추가
+    })),
+    updateExpense: (updated) =>
+    set((state) => ({
+      expenses: state.expenses.map((e) =>
+        e.expense_id === updated.expense_id ? updated : e
+      ),
     })),
 }));
