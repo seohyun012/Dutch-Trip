@@ -79,7 +79,7 @@ export default function TripPage({
           <>
             <button
               onClick={() => router.push(`/trip/${id}/add-expense`)}
-              className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
+              className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center active:scale-[0.98] transition-all"
             >
               <Plus size={32} strokeWidth={4} />
             </button>
@@ -89,7 +89,7 @@ export default function TripPage({
         {activeTab === "일정" && (
           <button
             onClick={() => router.push(`/trip/${id}/add-schedule`)}
-            className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center"
+            className="w-full py-4 rounded-2xl bg-[#0C6DFF] text-white font-bold flex items-center justify-center active:scale-[0.98] transition-all"
           >
             <Plus size={32} strokeWidth={4} />
           </button>

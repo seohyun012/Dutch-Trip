@@ -149,7 +149,7 @@ export default function AddTripForm({ onSubmit }: Props) {
             <p className="text-4xl font-bold text-[#0C6DFF]">{inviteCode}</p>
             <button
               onClick={() => router.push(`/trip/${tripId}?tab=일정`)}
-              className="w-full py-3 rounded-2xl bg-[#0C6DFF] text-white text-2xl font-bold"
+              className="w-full py-3 rounded-2xl bg-[#0C6DFF] text-white text-2xl font-bold active:scale-[0.98] transition-all"
             >
               입장하기
             </button>

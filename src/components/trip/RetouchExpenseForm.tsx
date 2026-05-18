@@ -65,7 +65,7 @@ export default function RetouchExpenseForm({
       item_count: items.length,
       payer,
     });
-    router.back();
+    router.push(`/trip/${tripId}?tab=영수증`);
   }
 
   return (
