@@ -14,39 +14,39 @@ export default function Login() {
   };
 
   return (
-    <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-center gap-12 p-5 overflow-hidden">
+    <main className="bg-[#0000FA] min-h-screen w-full flex flex-col items-center justify-center gap-5 overflow-hidden pb-20">
       {/* 로고 영역: 중앙 배치 유도 */}
       <div className=" flex items-center justify-center w-full">
-        <motion.div
+        <motion.div //에니메이션을 위해  framer-motion 오픈소스
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="relative w-full max-w-[800px] aspect-square"
         >
           <Image
             src="/login.png"
             alt="로그인로고"
-            fill
-            className="object-contain"
+            width={500}
+            height={500} //정사각형이라는 배율만 알려줌
+            className="w-[85vw] min-w-[180px] max-w-[400px] h-auto"
             priority
           />
         </motion.div>
       </div>
 
       {/* 로그인 버튼 영역: 하단 고정 */}
-      <div className="w-full max-w-[320px]">
+      <div className="w-full px-16">
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={handleLogin}
-          className="h-14 w-full bg-[#FEE500] flex items-center justify-center rounded-2xl gap-3 
+          className="h-16 w-full bg-[#FEE500] flex items-center justify-center rounded-2xl gap-2 
                      shadow-xl active:brightness-90 transition-all"
         >
-          <MessageCircle className="w-6 h-6 fill-black stroke-0 scale-x-[-1]" />
-          <span className="text-black text-lg font-bold">카카오 로그인</span>
+          <MessageCircle
+            size={24}
+            className="fill-black stroke-0 scale-x-[-1]"
+          />
+          {/*scale-x-[-1]:좌우반전 */}
+          <span className="text-black text-2xl font-bold">카카오 로그인</span>
         </motion.button>
-
-        <p className="text-white/60 text-center mt-6 text-sm">
-          서비스 이용을 위해 로그인이 필요합니다.
-        </p>
       </div>
     </main>
   );

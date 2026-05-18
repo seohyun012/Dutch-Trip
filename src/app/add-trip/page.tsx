@@ -12,5 +12,5 @@ export default function AddTripPage() {
     addTrip(trip);
   }
 
-  return <AddTripForm onSubmit={handleSubmit} />; //AddTripForm한테 "제출 버튼 누르면 이 함수 실행해줘" 라고 넘겨주는 거
+  return <AddTripForm onSubmit={handleSubmit} />; //AddTripForm한테 "제출 버튼 누르면 handleSubmit 실행해줘" 라고 넘겨주는 거
 }
