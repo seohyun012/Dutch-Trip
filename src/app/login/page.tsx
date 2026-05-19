@@ -5,10 +5,12 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function Login() {
-  const REST_API_KEY = "4854a23fc38bfa5994757158caf67d95";
-  const REDIRECT_URI = "http://localhost:3000/oauth/kakao";
+  const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY;
+  const REDIRECT_URI = "http://localhost:3000/auth/kakao/callback";
+  //카카오 로그인 창 주소 생성
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
+  //버튼 누를 시 카카오 로그인 창으로 이동
   const handleLogin = () => {
     window.location.href = KAKAO_AUTH_URL;
   };
