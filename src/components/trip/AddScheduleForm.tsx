@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import type { Schedule } from "@/store/useScheduleStore";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
+import { ScheduleRequest } from "@/types";
 
 // 30분 단위 시간 옵션 생성 (00:00 ~ 23:30)
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -18,7 +18,7 @@ interface Props {
   //title,content는 여기서 입력해서 없는거임.
   tripId: number;
   tripDates: string[]; // ["2026-05-01", "2026-05-02", ...] 여행 기간 날짜 목록
-  onSubmit: (schedule: Schedule) => void;
+  onSubmit: (schedule: ScheduleRequest) => void | Promise<void>; //서버에 보내는 타입으로 변경함 
 }
 
 export default function AddScheduleForm({
@@ -41,19 +41,23 @@ export default function AddScheduleForm({
     return `${d.getMonth() + 1}월 ${d.getDate()}일`;
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!title.trim()) return;
 
-    const newSchedule: Schedule = {
-      schedule_id: Date.now(), // 임시 id (실제 연동 시 서버에서 받음)
+    const newSchedule: ScheduleRequest = {
+      //schedule_id: Date.now(), // 임시 id (실제 연동 시 서버에서 받음)
       schedule_date: selectedDate,
       schedule_time: `${selectedDate}T${selectedTime}:00`,
       title: title.trim(),
       content: content.trim(),
     };
 
-    onSubmit(newSchedule);
+    try{
+    await onSubmit(newSchedule);
     router.push(`/trip/${tripId}?tab=일정`);
+    } catch{
+    //에러 처리는 add-schedule 에서 함. 에러 시 페이지 이동 못하게 한 거임
+    }
   }
 
   return (

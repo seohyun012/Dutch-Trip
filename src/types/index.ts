@@ -21,3 +21,10 @@ export interface Expense { // 영수증 하나
   item_count: number; //메뉴개수
   items: ExpenseItem[]; //각 메뉴
 }
+
+export interface ScheduleRequest { //일정 추가 시 서버에 보내는 데이터 (schedule_id 없음, 명세서 3.1) 
+  schedule_date: string;    // "2026-05-01"
+  schedule_time: string;    // "2026-05-01T12:00:00"
+  title: string;
+  content: string;
+}
