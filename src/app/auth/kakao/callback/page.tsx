@@ -40,7 +40,7 @@ export default function KakaoCallback() {
             return;
           }
           //카카오가 준 토큰을 백엔드 서버에 전달
-          const response = await fetch("https://dutchtrip.duckdns.org/api/auth/kakao", {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/kakao`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
