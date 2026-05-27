@@ -28,3 +28,10 @@ export interface ScheduleRequest { //일정 추가 시 서버에 보내는 데�
   title: string;
   content: string;
 }
+
+// 참여자 목록 조회 시 서버에서 받는 데이터 (명세서 2.3)
+export interface MemberResponse {
+  user_id: number;
+  nickname: string;
+  role?: "방장" | "일반";   //역할 삭제??
+}

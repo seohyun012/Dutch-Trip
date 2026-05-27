@@ -7,6 +7,8 @@ import ExpenseTab from "@/components/trip/ExpenseTab";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import ScheduleTab from "@/components/trip/ScheduleTab";
+import { useMembersQuery } from "@/hooks/queries/useTripQuery";
+import Loading from "@/app/loading";
 
 type Tab = "일정" | "영수증";
 
@@ -17,17 +19,21 @@ export default function TripPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const mockMembers = [
+  //목데이터 제거 서버에서 가져옴
+  const { data: members, isLoading } = useMembersQuery(Number(id));
+  /*const mockMembers = [
     //이거 trip/[id]/add-expense/page.tsx에도 똑같은거 있는데 둘다 변경해야함
     { user_id: 1, nickname: "최서현" },
     { user_id: 2, nickname: "김선태" },
     { user_id: 3, nickname: "이지은" },
-  ];
+  ];*/
   const router = useRouter(); //페이지이동
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(
     searchParams.get("tab") === "영수증" ? "영수증" : "일정",
   );
+
+  if (isLoading) return <Loading />;
 
   return (
     <main className="w-full min-h-screen bg-[#FFFFFF] flex flex-col">
@@ -68,7 +74,8 @@ export default function TripPage({
         {/*부모가 flex이고 자식이 flex-1이면, 자식이 남은 공간을 다 차지함,
         overflow-y-auto: 세로로 넘칠 때 스크롤 생김. */}
         {activeTab === "영수증" && (
-          <ExpenseTab members={mockMembers} tripId={Number(id)} />
+          //<ExpenseTab members={mockMembers} tripId={Number(id)} />
+          <ExpenseTab members = { members ?? []} tripId = { Number(id)} />
         )}{" "}
         {/*참이면 뒤 실행*/}
         {activeTab === "일정" && <ScheduleTab />}
