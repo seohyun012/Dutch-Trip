@@ -110,6 +110,7 @@ export default function Mypage() {
             userId: null, email: "", nickname: "토큰 없음 (로그인 필요)",
             profileImage: "", bankName: "", accountNumber: "",
           });
+
         return;
       }
         console.log("3. 백엔드로 요청 보내기");
@@ -150,19 +151,57 @@ export default function Mypage() {
     const fetchTravels = async () => {
       try {
         // 실제 연동 시: const res = await fetch('/api/travels');
-        const dataFromServer = [
-          { id: "trip_01", date: "24/05", title: "필리핀여행" }, //임시 데이터
-          { id: "trip_02", date: "25/07", title: "커플여행" },
-        ];
-        setTravels(dataFromServer);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/trips`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+        
+          if (resData.data && resData.data.length > 0) {
+            const formattedData = resData.data.map((trip: any) => {
+              const parts = (trip.start_date || "").split("-");
+              const dateForm = parts.length >= 3 ? `${parts[2]}/${parts[1]}` : "00/00";
+              return {
+                trip_id: trip.trip_id,
+                title: trip.title,
+                start_data: trip.start_data,
+                date: dateForm
+              };
+            });
+            setTravels(formattedData);
+          } else {
+            // 백엔드가 비어있으면 더미 데이터 뜨게함
+            setTravels([
+            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
+            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
+            ]);
+          }
+        } else {
+          setTravels([
+            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
+            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
+          ]);
+        }
+      } catch (error) {
+        setTravels([
+            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
+            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
+        ]);
       } finally {
         setLoading(false);
       }
-   };
-   fetchUserProfile();
-    fetchTravels(); //async 함수는 useEffect 안에서 직접 쓸 수 없어서, 안에서 정의하고 바로 호출하는 방식
-  }, []);
+    };
 
+    const token = localStorage.getItem("access_token");
+    fetchUserProfile();
+    fetchTravels(); 
+ }, []);
+  
   return (
     <main className="bg-white min-h-screen w-full flex flex-col relative overflow-hidden">
       <Header title="마이페이지" />
@@ -185,7 +224,7 @@ export default function Mypage() {
           </div>
           <button
             onClick={() => {
-              localStorage.removeItem("kakao_user");
+              localStorage.removeItem("access_token");
               router.push("/login");
             }}
             className="bg-white px-4 py-2 rounded-full text-xl font-normal text-black active:scale-95 transition-transform"
@@ -238,8 +277,8 @@ export default function Mypage() {
             ) : travels.length > 0 ? (
               travels.map((travel) => (
                 <button
-                  key={travel.id}
-                  onClick={() => router.push(`/timeline/${travel.id}`)}
+                  key={travel.trip_id}
+                  onClick={() => router.push(`/timeline/${travel.trip_id}?title=${encodeURIComponent(travel.title)}`)} // 👈 이름 데이터까지 같이 토스!
                   className="w-full bg-[#E5E5FE] rounded-2xl flex items-center p-2 gap-2 active:scale-[0.98] transition-all"
                 >
                  
