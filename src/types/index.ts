@@ -47,6 +47,11 @@ export interface TripListItem {
   my_role: "방장" | "일반"; 
 }
 
+// 초대 코드로 여행 참여 요청 타입 (명세서 2.4)
+export interface JoinTripRequest {
+  invite_code: string;
+}
+
 // 여행방 생성 요청 타입
 export interface TripRequest {
   title: string;
