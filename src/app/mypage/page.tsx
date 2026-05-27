@@ -10,19 +10,17 @@ import Button from "@/components/common/Button";
 export default function Mypage() {
   const router = useRouter();
 
-  {
-    /* [연동 될 데이터]_임시 기본 데이터*/
-  }
+  {/* [연동 될 데이터]_임시 기본 데이터*/}
   const [userData, setUserData] = useState({
     userId: null,
     nickname: "최서현",
     email: "",
     profileImage: "/seohyun.png",
+    bankName: "",
+    accountNumber: "",
   });
 
-  {
-    /* [수동 작성]_계좌 입력*/
-  }
+  { /* [수동 작성]_계좌 입력*/}
   const [account, setAccount] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   //계좌 작성 형식 지정(하이픈 생성)
@@ -51,13 +49,41 @@ export default function Mypage() {
   };
 
   // 저장 시 양식 검사
-  const handleSaveAccount = () => {
+  const handleSaveAccount = async () => {
     const regex = /.*\d{3}-\d{3}-\d{6}$/;
+    
     if (regex.test(account)) {
-      //acount가 regex를 만족하는지 test해보는 것
-      setIsEditing(false);
+      try {
+        const token = localStorage.getItem("access_token");
+
+        const parts = account.trim().split(" ");
+        const bankName = parts[0];
+        const accountNumber = parts[1];
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me/bank-info`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            bank_name: bankName,         
+            account_number: accountNumber 
+          }),
+        });
+
+        if (res.ok) {
+          setIsEditing(false);
+          alert("계좌 정보가 성공적으로 업데이트되었습니다");
+        } else {
+          alert("계좌 저장에 실패했습니다. 다시 시도해 주세요.");
+        }
+      } catch (error) {
+        console.error("계좌 정보 저장 중 통신 에러:", error);
+        alert("서버 연결에 실패했습니다.");
+      }
     } else {
-      alert("계좌번호 양식이 올바르지 않습니다.");
+      alert("계좌번호 양식이 올바르지 않습니다.\n예시: 신한은행 123-456-123456");
     }
   };
 
@@ -80,7 +106,10 @@ export default function Mypage() {
 
         if (!token) {
         console.error(" 로컬스토리지에 access_token이 없습니다. 다시 로그인 해주세요");
-        setUserData({ userId: null, email: "", nickname: "토큰 없음 (로그인 필요)",profileImage: "" });
+          setUserData({
+            userId: null, email: "", nickname: "토큰 없음 (로그인 필요)",
+            profileImage: "", bankName: "", accountNumber: "",
+          });
         return;
       }
         console.log("3. 백엔드로 요청 보내기");
@@ -99,14 +128,16 @@ export default function Mypage() {
           console.log("5. 돌려준 실제 유저 데이터:", data);
           
           setUserData({
-            userId: data.data.user_id,
-            email: data.data.email,
-            nickname: data.data.nickname, 
+            userId: data.user_id,
+            email: data.email,
+            nickname: data.nickname, 
             profileImage: "/seohyun.png",
+            bankName: data.bank_name,
+            accountNumber: data.account_number,
           });
 
           //  등록된 계좌가 있다면 "은행명 계좌번호" 형식으로 인풋창에 저장
-          if (data.bank_name && data.data.account_number) {
+          if (data.bank_name && data.account_number) {
             setAccount(`${data.bank_name} ${data.account_number}`);
           }
         }
@@ -165,30 +196,37 @@ export default function Mypage() {
 
         {/*계좌번호 입력_수동입력 및 수정*/}
         <section className="flex items-center justify-between px-2 mb-25">
-          <div className="flex-1 pt-1">
-            {isEditing ? (
-              <input
-                type="text"
-                value={account}
-                onChange={handleAccountChange}
-                placeholder="한국은행 123-456-123456"
-                maxLength={25}
-                className="text-xl text-black bg-transparent outline-none w-full"
-              ></input>
-            ) : (
-              <span
-                className={`text-xl font-bold tracking-tight ${account ? "text-black" : "text-black/30"}`}
-              >
-                {account || "계좌번호를 입력해주세요"}
+            <div className="flex-1 pt-1">
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={account}
+                  onChange={handleAccountChange}
+                  placeholder="한국은행 123-456-123456"
+                  maxLength={25}
+                  className="text-xl text-black bg-transparent outline-none w-full"
+                />
+              ) : (
+                <span
+                  className={`text-xl font-bold tracking-tight ${
+                    (userData.bankName && userData.accountNumber) || account 
+                      ? "text-black" 
+                      : "text-black/30"
+                  }`}
+                  >
+                  
+                {userData.bankName && userData.accountNumber
+                  ? `${userData.bankName} ${userData.accountNumber}`
+                  : account || "계좌번호를 입력해주세요"}
               </span>
-            )}
-          </div>
-          <button
-            onClick={isEditing ? handleSaveAccount : () => setIsEditing(true)}
-            className="text-xl text-black/40 shrink-0 pt-1"
-          >
-            {isEditing ? "저장" : "수정"}
-          </button>
+              )}
+            </div>
+            <button
+              onClick={isEditing ? handleSaveAccount : () => setIsEditing(true)}
+              className="text-xl text-black/40 shrink-0 pt-1"
+            >
+              {isEditing ? "저장" : "수정"}
+            </button>
         </section>
 
         {/*여행 기록 리스트*/}
@@ -204,7 +242,7 @@ export default function Mypage() {
                   onClick={() => router.push(`/timeline/${travel.id}`)}
                   className="w-full bg-[#E5E5FE] rounded-2xl flex items-center p-2 gap-2 active:scale-[0.98] transition-all"
                 >
-                  {/*active:scale-[0.98]: 버튼 누르는 순간 98% 크기, transition-all: 모든 변화를 부드럽게 애니메이션 */}
+                 
                   <Plane size={32} className="text-black" />
                   <span className="text-2xl text-black">
                     {travel.date} {travel.title}
