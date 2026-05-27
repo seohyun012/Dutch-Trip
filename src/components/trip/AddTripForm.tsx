@@ -3,20 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
-import type { FixedExpense, Trip } from "@/store/useTripStore";
+import type { FixedExpense } from "@/store/useTripStore";
+import type { TripRequest, TripResponse } from "@/types";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 
-function generateInviteCode() {
+/*function generateInviteCode() {
   //랜덤코드 만드는 함수. api받으면 이거지우고 그걸로 사용
   return Math.random().toString(36).slice(2, 8).toUpperCase();
-}
+}*/
 
 interface Props {
-  onSubmit: (trip: Trip) => void;
+  onSubmit: (trip: TripRequest) => Promise<TripResponse>;
+  isPending?: boolean;
 }
 
-export default function AddTripForm({ onSubmit }: Props) {
+export default function AddTripForm({ onSubmit, isPending = false }: Props) {
   const router = useRouter();
   const [inviteCode, setInviteCode] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -47,25 +49,35 @@ export default function AddTripForm({ onSubmit }: Props) {
     setFixedExpenses((prev) => [...prev, { item_name: "", price: 0 }]); //고정비용 입력칸 추가
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!title.trim() || !startDate || !endDate) return; //뭐가 하나라도 없으면 그냥 종료
 
-    const code = generateInviteCode();
-    const id = Date.now(); //이렇게 현재시간으로 아이디 넣은거 api연동하면 다 교체해야함
+    //const code = generateInviteCode();
+    //const id = Date.now(); //이렇게 현재시간으로 아이디 넣은거 api연동하면 다 교체해야함
 
-    const newTrip: Trip = {
-      trip_id: id,
+    const newTrip: TripRequest = {
+      //trip_id: id,
       title: title.trim(),
-      invite_code: code,
+      //invite_code: code,
+      nation: "대한민국",
       start_date: startDate,
       end_date: endDate,
-      fixed_expenses: fixedExpenses.filter((e) => e.item_name.trim()), //빈칸은 제외
+      //fixed_expenses: fixedExpenses.filter((e) => e.item_name.trim()), //빈칸은 제외
     };
 
-    onSubmit(newTrip); //이거때문에 add-trip/page.tsx의 핸들섭밋실행
+    /*onSubmit(newTrip); //이거때문에 add-trip/page.tsx의 핸들섭밋실행
     setInviteCode(code); //초대코드설정
     setTripId(id);
-    setShowModal(true);
+    setShowModal(true);*/
+
+    try {
+      const response = await onSubmit(newTrip); //서버에서 trip_id, invite_code를 받아옴
+      setInviteCode(response.invite_code); //서버가 만든 진짜 초대코드 설정
+      setTripId(response.trip_id); //서버가 만든 진짜 trip_id 설정
+      setShowModal(true);
+    } catch {
+      alert("여행 생성에 실패했습니다.");
+    }
   }
 
   return (

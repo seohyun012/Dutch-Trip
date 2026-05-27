@@ -7,7 +7,8 @@ import ExpenseTab from "@/components/trip/ExpenseTab";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import ScheduleTab from "@/components/trip/ScheduleTab";
-import { useMembersQuery } from "@/hooks/queries/useTripQuery";
+import { useMembersQuery, useTripsQuery } from "@/hooks/queries/useTripQuery";
+import { useSchedulesQuery } from "@/hooks/queries/useScheduleQuery";
 import Loading from "@/app/loading";
 
 type Tab = "일정" | "영수증";
@@ -20,20 +21,26 @@ export default function TripPage({
 }) {
   const { id } = use(params);
   //목데이터 제거 서버에서 가져옴
-  const { data: members, isLoading } = useMembersQuery(Number(id));
+  const { data: members, isLoading: membersLoading } = useMembersQuery(Number(id));
+  const { data: trips, isLoading: tripsLoading } = useTripsQuery();
+  const { data: schedules, isLoading: schedulesLoading } = useSchedulesQuery(Number(id));
   /*const mockMembers = [
     //이거 trip/[id]/add-expense/page.tsx에도 똑같은거 있는데 둘다 변경해야함
     { user_id: 1, nickname: "최서현" },
     { user_id: 2, nickname: "김선태" },
     { user_id: 3, nickname: "이지은" },
   ];*/
+
+  // 여행 목록에서 현재 trip_id와 일치하는 여행을 찾아서 제목을 가져옴
+  const currentTrip = trips?.find((t) => t.trip_id === Number(id));
+
   const router = useRouter(); //페이지이동
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<Tab>(
     searchParams.get("tab") === "영수증" ? "영수증" : "일정",
   );
 
-  if (isLoading) return <Loading />;
+  if (membersLoading || tripsLoading || schedulesLoading) return <Loading />;
 
   return (
     <main className="w-full min-h-screen bg-[#FFFFFF] flex flex-col">
@@ -41,7 +48,7 @@ export default function TripPage({
       min-h-screen: 화면 전체 높이(최소정하고 늘어남),
       bg-[#EBF4FF]: 배경색, 
       flex flex-col: 세로로 요소 배치*/}
-      <Header title="가평 여행" />
+      <Header title={currentTrip?.title ?? "여행"} />
       {/* 탭 - 헤더에 딱 붙게, 좌우 여백 없음, 각진 모서리 */}
       <div className="flex w-full sticky top-14 z-20">
         <button
@@ -78,7 +85,13 @@ export default function TripPage({
           <ExpenseTab members = { members ?? []} tripId = { Number(id)} />
         )}{" "}
         {/*참이면 뒤 실행*/}
-        {activeTab === "일정" && <ScheduleTab />}
+        {activeTab === "일정" && (
+          <ScheduleTab
+            schedules={schedules ?? []}
+            startDate={currentTrip?.start_date ?? ""}
+            endDate={currentTrip?.end_date ?? ""}
+          />
+        )}
       </div>
       {/* 하단 고정 버튼 */}
       <div className="sticky bottom-0 px-5 pb-4 bg-white flex flex-col gap-4 z-20">

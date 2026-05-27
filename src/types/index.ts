@@ -33,7 +33,33 @@ export interface ScheduleRequest { //일정 추가 시 서버에 보내는 데�
 export interface MemberResponse {
   user_id: number;
   nickname: string;
-  role?: "방장" | "일반";   //역할 삭제??
+  //role?: "방장" | "일반";   //역할 삭제
+}
+
+// 여행방 목록 조회 응답 (명세서 2.2)
+export interface TripListItem {
+  trip_id: number;
+  title: string;
+  nation: string;
+  start_date: string;  // "YYYY-MM-DD"
+  end_date: string;    // "YYYY-MM-DD"
+  member_count: number;
+  my_role: "방장" | "일반"; 
+}
+
+// 여행방 생성 요청 타입
+export interface TripRequest {
+  title: string;
+  nation: string;
+  start_date: string; // "YYYY-MM-DD" 형식
+  end_date: string;   // "YYYY-MM-DD" 형식
+}
+
+// 여행방 생성 응답 타입
+export interface TripResponse {
+  trip_id: number;
+  title: string;
+  invite_code: string;
 }
 
 export interface ExpenseItemRequest {

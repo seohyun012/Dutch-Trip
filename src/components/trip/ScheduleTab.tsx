@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useScheduleStore } from "@/store/useScheduleStore";
+import type { Schedule } from "@/store/useScheduleStore";
 
 function formatTimeParts(iso: string) {
   // ISO 날짜 문자열에서 시(hh)와 분(mm)을 분리해서 반환 (영수증 탭과 동일 방식)
@@ -13,12 +13,34 @@ function formatTimeParts(iso: string) {
   };
 }
 
-function groupByDay<T extends { schedule_date: string; schedule_time: string }>(
+/*function groupByDay<T extends { schedule_date: string; schedule_time: string }>(
   schedules: T[],
 ) {
   // 날짜별로 묶고 DAY 1, DAY 2... 라벨 붙이기 (groupByDay in ExpenseTab과 동일 구조)
   const dates = [...new Set(schedules.map((s) => s.schedule_date))].sort();
 
+  return dates.map((date, i) => ({
+    label: `DAY ${i + 1}`,
+    items: schedules.filter((s) => s.schedule_date === date),
+  }));
+}*/
+
+function groupByDay<T extends { schedule_date: string; schedule_time: string }>(
+  schedules: T[],
+  startDate: string,
+  endDate: string,
+) {
+  // start_date부터 end_date까지 모든 날짜를 생성
+  const dates: string[] = [];
+  const current = new Date(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10)); // "2026-05-01" 형태
+    current.setDate(current.getDate() + 1);          // 하루씩 증가
+  }
+
+  // 각 날짜에 해당하는 일정을 매칭
   return dates.map((date, i) => ({
     label: `DAY ${i + 1}`,
     items: schedules.filter((s) => s.schedule_date === date),
@@ -47,9 +69,14 @@ function ScheduleCard({ title, content }: ScheduleCardProps) {
 
 // ─── 메인 컴포넌트 ──────────────────────────────────────
 
-export default function ScheduleTab() {
-  const { schedules } = useScheduleStore();
-  const dayGroups = groupByDay(schedules);
+interface Props {
+  schedules: Schedule[];  // 부모에서 서버 데이터를 받음
+  startDate: string;
+  endDate: string;
+}
+
+export default function ScheduleTab({ schedules, startDate, endDate }: Props) {
+  const dayGroups = groupByDay(schedules, startDate, endDate);
 
   const [activeDayIdx, setActiveDayIdx] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -133,6 +160,13 @@ export default function ScheduleTab() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* 일정이 없는 DAY일 때 표시 */}
+      {activeGroup && activeGroup.items.length === 0 && (
+        <div className="py-10 text-center">
+          <p className="text-gray-400 text-xl">등록된 일정이 없습니다</p>
         </div>
       )}
     </div>
