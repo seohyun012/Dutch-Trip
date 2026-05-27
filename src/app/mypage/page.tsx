@@ -14,7 +14,9 @@ export default function Mypage() {
     /* [연동 될 데이터]_임시 기본 데이터*/
   }
   const [userData, setUserData] = useState({
+    userId: null,
     nickname: "최서현",
+    email: "",
     profileImage: "/seohyun.png",
   });
 
@@ -25,13 +27,12 @@ export default function Mypage() {
   const [isEditing, setIsEditing] = useState(false);
   //계좌 작성 형식 지정(하이픈 생성)
   const formatAccount = (value: string) => {
-    const firstDigitIndex = value.search(/\d/); //숫자인덱스를 찾음.
-    if (firstDigitIndex === -1) return value; //숫자가 없으면 기본값 반환
+    const firstDigitIndex = value.search(/\d/); 
+    if (firstDigitIndex === -1) return value; 
 
     //은행명과 계좌번호 분리
     const prefix = value.slice(0, firstDigitIndex); //은행
     const onlyNums = value.slice(firstDigitIndex).replace(/[^\d]/g, ""); //계좌번호
-    // ^는 "아닌", \d는 숫자, g는 전체에서 찾기
 
     let formattedNums = "";
     if (onlyNums.length <= 3) {
@@ -46,7 +47,6 @@ export default function Mypage() {
 
   // 입력창 핸들러
   const handleAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //입력할 때마다 이걸 실행
     setAccount(formatAccount(e.target.value)); //포멧값으로 계좌값을 바꾸는함수
   };
 
@@ -70,17 +70,50 @@ export default function Mypage() {
   {
     /*로그인 로직_카카오 로그인 정보 가져오기*/
   }
-  useEffect(() => {
-    //페이디 처음 렌더링될때
-    const savedUser = localStorage.getItem("kakao_user");
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUserData({
-        nickname: parsedUser.nickname || "박지영",
-        profileImage: (parsedUser.profile_image || "/profile.png").trim(),
-      });
-    }
-    //}, []);
+ useEffect(() => {
+    // 백엔드에서 프로필 및 계좌 정보 가져오는 함수
+   const fetchUserProfile = async () => {
+      console.log("1. fetchUserProfile 함수 시작");
+      try {
+        const token = localStorage.getItem("access_token");
+        console.log("2.토큰 확인:", token);
+
+        if (!token) {
+        console.error(" 로컬스토리지에 access_token이 없습니다. 다시 로그인 해주세요");
+        setUserData({ userId: null, email: "", nickname: "토큰 없음 (로그인 필요)",profileImage: "" });
+        return;
+      }
+        console.log("3. 백엔드로 요청 보내기");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        console.log("4. 백엔드 응답 상태코드:", res.status);
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log("5. 돌려준 실제 유저 데이터:", data);
+          
+          setUserData({
+            userId: data.data.user_id,
+            email: data.data.email,
+            nickname: data.data.nickname, 
+            profileImage: "/seohyun.png",
+          });
+
+          //  등록된 계좌가 있다면 "은행명 계좌번호" 형식으로 인풋창에 저장
+          if (data.bank_name && data.data.account_number) {
+            setAccount(`${data.bank_name} ${data.account_number}`);
+          }
+        }
+      } catch (error) {
+        console.error("마이페이지 정보 로딩 실패:", error);
+      }
+    };
 
     // (2) 서버에서 여행 리스트 가져오기 (시뮬레이션)
     const fetchTravels = async () => {
@@ -94,7 +127,8 @@ export default function Mypage() {
       } finally {
         setLoading(false);
       }
-    };
+   };
+   fetchUserProfile();
     fetchTravels(); //async 함수는 useEffect 안에서 직접 쓸 수 없어서, 안에서 정의하고 바로 호출하는 방식
   }, []);
 
@@ -139,7 +173,6 @@ export default function Mypage() {
                 onChange={handleAccountChange}
                 placeholder="한국은행 123-456-123456"
                 maxLength={25}
-                //autoFocus 최서현: 굳이?
                 className="text-xl text-black bg-transparent outline-none w-full"
               ></input>
             ) : (
