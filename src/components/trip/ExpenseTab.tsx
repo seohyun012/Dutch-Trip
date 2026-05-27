@@ -4,7 +4,7 @@ import { useState } from "react"; // useState: 세트만들어주는 함수
 import { ChevronDown } from "lucide-react";
 import type { Expense } from "@/types"; // @/ : /src
 import ExpenseCard from "./ExpenseCard";
-import { useExpenseStore } from "@/store/useExpenseStore";
+import { useExpenseQuery } from "@/hooks/queries/useExpenseQuery";
 
 // 현재 로그인 유저 ID - 실제 서비스에서는 Zustand store(useAuthStore)에서 가져옴
 const CURRENT_USER_ID = 1;
@@ -45,15 +45,16 @@ function groupByDay(expenses: Expense[]) {
 
 export default function ExpenseTab({ members, tripId }: Props) {
   // 메인함수
-  const { expenses: mockExpenses } = useExpenseStore();
-  const fixed = mockExpenses.filter((e) => e.expense_type === "고정금액"); // expense_type 기준으로 고정금액 / 추가금액 분리
-  const additional = mockExpenses.filter((e) => e.expense_type === "추가금액");
+  const { data: expenses = [], isLoading } = useExpenseQuery(tripId);
+  const [activeDayIdx, setActiveDayIdx] = useState(0); //activeDayIdx: 현재 선택된 DAY 인덱스
+  const [dropdownOpen, setDropdownOpen] = useState(false); //DAY 선택 드롭다운 열고 닫는거, 처음엔 닫힘
+  if (isLoading) return <p className="p-4 text-center">불러오는 중...</p>;
+
+  const fixed = expenses.filter((e) => e.expense_type === "고정금액"); // expense_type 기준으로 고정금액 / 추가금액 분리
+  const additional = expenses.filter((e) => e.expense_type === "추가금액");
   //additional, mockExpenses: expense타입 배열
 
   const dayGroups = groupByDay(additional); // 추가금액을 날짜별 DAY 그룹으로 변환
-
-  const [activeDayIdx, setActiveDayIdx] = useState(0); //activeDayIdx: 현재 선택된 DAY 인덱스
-  const [dropdownOpen, setDropdownOpen] = useState(false); //DAY 선택 드롭다운 열고 닫는거, 처음엔 닫힘
 
   const activeGroup = dayGroups[activeDayIdx]; //현재선택된 day의 그룹 ex.DAY1
 

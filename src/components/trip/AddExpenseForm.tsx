@@ -3,48 +3,43 @@
 import { useRef, useState } from "react";
 // <input type="file" />은 못생겨서 숨겨두고, 버튼 클릭하면 useRef로 숨겨진 input을 코드로 클릭하는 방식
 import { useRouter } from "next/navigation";
-import type { Expense, ExpenseItem, Participant } from "@/types";
+import type { Expense, ExpenseItem, Participant, OcrResponse } from "@/types";
 import { ChevronLeft } from "lucide-react";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
-
-// ── 더미 OCR 데이터 (나중에 실제 API 응답으로 교체) ──
-const DUMMY_OCR: Pick<
-  Expense,
-  "title" | "total_amount" | "items" | "payment_time"
-> = {
-  //이 세개만 골라서 사용하겠다.
-  title: "대성리 피자",
-  total_amount: 45000,
-  payment_time: "2026-05-01T12:00:00",
-  items: [
-    { item_name: "알리올리오 파스타", price: 10000, participants: [] },
-    { item_name: "투움바 파스타", price: 15000, participants: [] },
-    { item_name: "마르게리따 피자", price: 18000, participants: [] },
-    { item_name: "콜라 500ml", price: 2000, participants: [] }, //참여자 빈 상태로
-  ],
-};
+import {
+  useOcrMutation,
+  useCreateExpenseMutation,
+} from "@/hooks/mutations/useExpenseMutation";
+import { useTripQuery } from "@/hooks/queries/useTripQuery";
 
 interface Props {
   tripId: number;
   members: Participant[]; // 여행멤버 타입을 설정해준거
-  onSubmit: (expense: Expense) => void; // 이대로 반영하기 눌렀을 때
 }
 
-export default function AddExpenseForm({ tripId, members, onSubmit }: Props) {
+export default function AddExpenseForm({ tripId, members }: Props) {
+  const { data: trip } = useTripQuery(tripId);
   const router = useRouter(); //페이지 이동을 위한 훅
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 이미지 첨부 여부
   const [imageAttached, setImageAttached] = useState(false);
-
-  // OCR로 채워지는 데이터 (지금은 더미)
   const [title, setTitle] = useState("");
   //title: 제목 저장 변수, setTitle: title을 변경하는 함수(함수실행에서 인수를 넣어주면 그걸로)
   const [totalAmount, setTotalAmount] = useState(0);
-  const [paymentTime, setPaymentTime] = useState<string | undefined>(undefined);
+  const [paymentTime, setPaymentTime] = useState("");
   const [items, setItems] = useState<ExpenseItem[]>([]);
   //ExpenseItem타입 배열로 items를 주겠다.
+
+  const [itemParticipants, setItemParticipants] = useState<
+    Record<string, number[]>
+  >({});
+
+  const { mutateAsync: runOcr, isPending: isOcrLoading } =
+    useOcrMutation(tripId);
+  const { mutateAsync: createExpense, isPending: isSubmitting } =
+    useCreateExpenseMutation(tripId);
 
   // 유저가 선택하는 값
   const [splitType, setSplitType] = useState<"개인" | "더치">("더치");
@@ -56,48 +51,65 @@ export default function AddExpenseForm({ tripId, members, onSubmit }: Props) {
   }
 
   // 파일 선택 시 → 더미 OCR 데이터로 채우기 (나중에 실제 API 연동)
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    //e: React.ChangeEvent<HTMLInputElement>: 인풋 변화생기면 넘어옴
-    if (!e.target.files?.length) return; //파일 선택안하면 종료
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const result = await runOcr(file);
     setImageAttached(true);
-    setTitle(DUMMY_OCR.title);
-    setTotalAmount(DUMMY_OCR.total_amount);
-    setPaymentTime(DUMMY_OCR.payment_time ?? "");
-    setItems(DUMMY_OCR.items);
+    setTitle(result.parsed_title);
+    setTotalAmount(result.parsed_total_amount);
+    // OCR 아이템을 ExpenseItem 형태로 변환 (participants는 빈 배열)
+    setItems(
+      result.parsed_items.map((i: OcrResponse["parsed_items"][number]) => ({
+        ...i,
+        participants: [],
+      })),
+    );
+  }
+
+  function toggleItemParticipant(itemName: string, userId: number) {
+    setItemParticipants((prev) => {
+      const current = prev[itemName] ?? [];
+      const next = current.includes(userId)
+        ? current.filter((id) => id !== userId)
+        : [...current, userId];
+      return { ...prev, [itemName]: next };
+    });
   }
 
   // 이대로 반영하기
-  function handleSubmit() {
-    if (!payerUserId) return; //결제자 선택 안했으면 종료
-    const payer = members.find((m) => m.user_id === payerUserId); //id로 id랑 닉네임 불러오기
-    if (!payer) return;
+  async function handleSubmit() {
+    if (!payerUserId) return;
 
-    const newExpense: Expense = {
-      expense_id: Date.now(), // 임시 id (실제 연동 시 서버에서 받음)
-      title, //title:title, 이랑 같은거임.
+    await createExpense({
+      title,
       total_amount: totalAmount,
       expense_type: "추가금액",
-      split_type: splitType,
-      payment_time: paymentTime,
-      payer, //이미 위에서 찾았으니까 그거쓰면됨.
-      item_count: items.length,
-      items,
-    };
+      payment_time: paymentTime || undefined,
+      payer_user_id: payerUserId,
+      items: items.map((item) => ({
+        item_name: item.item_name,
+        price: item.price,
+        // 더치: 빈 배열(서버가 전체 N빵 처리), 개인: 선택된 참여자
+        participant_user_ids:
+          splitType === "더치" ? [] : (itemParticipants[item.item_name] ?? []),
+      })),
+    });
 
-    onSubmit(newExpense); //add-expense-page에서 handleSubmit실행->newExpense를 새 영수증(store)에 추가
     router.push(`/trip/${tripId}?tab=영수증`);
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-white ">
       {/*min-h-screen: 내용이 적어도 화면 전체를 채우고, 내용이 많으면 그 이상으로 늘어남.*/}
-      <Header title="가평 여행" />
+      <Header title={trip?.title ?? ""} />
       {/* 영수증 사진 추가 버튼 */}
       <button
-        onClick={handleImageClick}
+        onClick={() => fileInputRef.current?.click()}
         className="py-6 text-2xl font-bold bg-[#E5E5FE] text-black rounded-xl mt-4 mx-4"
       >
-        영수증 사진 추가
+        {isOcrLoading ? "분석 중..." : "영수증 사진 추가"}
       </button>
       {/* 실제 파일 input (숨김) — accept로 폰/컴 둘 다 이미지 선택 가능 */}
       <input

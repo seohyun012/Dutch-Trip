@@ -16,3 +16,15 @@ export function useMembersQuery(tripId: number) {
     queryFn: () => fetchMembers(tripId),
   });
 }
+
+async function fetchTrip(tripId: number): Promise<{ title: string }> {
+  const { data } = await api.get(`/trips/${tripId}`);
+  return data.data;
+}
+
+export function useTripQuery(tripId: number) {
+  return useQuery({
+    queryKey: ["trip", tripId],
+    queryFn: () => fetchTrip(tripId),
+  });
+}

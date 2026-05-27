@@ -35,3 +35,31 @@ export interface MemberResponse {
   nickname: string;
   role?: "방장" | "일반";   //역할 삭제??
 }
+
+export interface ExpenseItemRequest {
+  item_name: string;
+  price: number;
+  participant_user_ids: number[]; // 빈 배열 = 전체 N빵
+}
+
+export interface ExpenseRequest {
+  title: string;
+  total_amount: number;
+  expense_type: "고정금액" | "추가금액";
+  payment_time?: string;
+  currency?: string;
+  exchange_rate?: number;
+  receipt_image_url?: string;
+  payer_user_id: number;
+  items: ExpenseItemRequest[];
+}
+
+// ── OCR 응답 타입 (명세서 4.1) ──
+export interface OcrResponse {
+  parsed_title: string;
+  parsed_total_amount: number;
+  parsed_items: {
+    item_name: string;
+    price: number;
+  }[];
+}
