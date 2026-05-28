@@ -1,6 +1,6 @@
 "use client";
 import Loading from "@/app/loading";
-
+import { useJoinTripMutation } from "@/hooks/mutations/useTripMutation";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
+  const { mutateAsync: joinTrip } = useJoinTripMutation()
 
   //입력창 모드 관리
   const [isInputMode, setIsInputMode] = useState(false); //"여행 참여" 버튼을 눌렀을 때 버튼 대신 입력창을 보여줄지 말지를 결정
@@ -27,15 +28,15 @@ export default function Home() {
     setTripCode(val);
 
     if (val.length === 6) {
-      if (val === VALID_CODE) {
-        setTimeout(() => alert("여행에 참여합니다"), 100);
-        //router.push("");
-      } else {
-        setTimeout(() => {
-          alert("등록 된 여행이 없습니다.");
+      joinTrip({ invite_code: val })
+        .then((response) => {
+          alert("여행에 참여합니다!");
+          router.push(`/trip/${response.trip_id}?tab=일정`);
+        })
+        .catch(() => {
+          alert("등록된 여행이 없습니다.");
           setTripCode("");
-        }, 100);
-      }
+        });
     }
   };
 
