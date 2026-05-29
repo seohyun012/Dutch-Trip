@@ -50,8 +50,8 @@ export default function ExpenseTab({ members, tripId }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false); //DAY 선택 드롭다운 열고 닫는거, 처음엔 닫힘
   if (isLoading) return <p className="p-4 text-center">불러오는 중...</p>;
 
-  const fixed = expenses.filter((e) => e.expense_type === "고정금액"); // expense_type 기준으로 고정금액 / 추가금액 분리
-  const additional = expenses.filter((e) => e.expense_type === "추가금액");
+  const fixed = expenses.filter((e) => e.expense_type === "고정"); // expense_type 기준으로 고정금액 / 추가금액 분리
+  const additional = expenses.filter((e) => e.expense_type === "추가");
   //additional, mockExpenses: expense타입 배열
 
   const dayGroups = groupByDay(additional); // 추가금액을 날짜별 DAY 그룹으로 변환

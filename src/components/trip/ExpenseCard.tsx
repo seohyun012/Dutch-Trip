@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import type { Expense } from "@/types"; //Expense 타입 가져오기
 import MenuPanel from "./MenuPanel";
 import { useSettleStore } from "@/store/useSettleStore";
@@ -15,6 +16,60 @@ interface Props {
   tripId: number;
 }
 
+function FixedPayerDropdown({
+  expense,
+  members,
+  tripId,
+}: {
+  expense: Expense;
+  members: Participant[];
+  tripId: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(expense.payer.user_id);
+
+  const selectedName =
+    members.find((m) => m.user_id === selectedId)?.nickname ??
+    expense.payer.nickname;
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+        className="text-xl text-black"
+      >
+        <span className="flex items-center gap-1">
+          결제자: {selectedName} <ChevronDown size={24} />
+        </span>
+      </button>
+      {open && (
+        <div className="absolute left-13 top-7 bg-white border border-gray-200 rounded shadow-md z-30">
+          {members.map((m) => (
+            <button
+              key={m.user_id}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedId(m.user_id);
+                setOpen(false);
+              }}
+              className={`block w-full px-5 py-2 text-lg text-left ${
+                m.user_id === selectedId
+                  ? "text-blue-500 font-bold"
+                  : "text-gray-700"
+              }`}
+            >
+              {m.nickname}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ExpenseCard({
   expense,
   currentUserId,
@@ -22,7 +77,7 @@ export default function ExpenseCard({
   tripId,
 }: Props) {
   const router = useRouter();
-  const isFixed = expense.expense_type === "고정금액";
+  const isFixed = expense.expense_type === "고정";
   const isPersonal = expense.split_type === "개인";
   const isDutch = expense.split_type === "더치";
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴선택 누르면 메뉴패널 열고닫기
@@ -74,7 +129,15 @@ export default function ExpenseCard({
         <div className="font-normal text-xl text-black">
           <p>총 가격: {expense.total_amount.toLocaleString()}원</p>
           {/*천 단위마다 , 찍기*/}
-          <p>결제자: {expense.payer.nickname}</p>
+          {isFixed ? (
+            <FixedPayerDropdown
+              expense={expense}
+              members={members}
+              tripId={tripId}
+            />
+          ) : (
+            <p>결제자: {expense.payer.nickname}</p>
+          )}
           {!isFixed && (
             <p>
               참여자:{" "}
