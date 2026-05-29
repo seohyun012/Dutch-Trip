@@ -11,8 +11,9 @@ async function fetchMembers(tripId: number): Promise<MemberResponse[]> {
 // 참여자 목록 조회 훅
 export function useMembersQuery(tripId: number) {
   return useQuery({
-    queryKey: ["members", tripId],   // 캐시 키: tripId별로 따로 저장 
+    queryKey: ["members", tripId],
     queryFn: () => fetchMembers(tripId),
+    refetchInterval: 5000, // 5초마다 자동으로 멤버 목록 다시 불러옴
   });
 }
 
@@ -21,6 +22,7 @@ async function fetchTrips(): Promise<TripListItem[]> {
   const { data } = await api.get("/trips");
   return data; //얘는 배열로 바로 옴
 }
+
 
 // 여행방 목록 조회 훅
 export function useTripsQuery() {
