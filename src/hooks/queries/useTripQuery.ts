@@ -5,7 +5,7 @@ import type { MemberResponse, TripListItem } from "@/types";
 // 참여자 목록 조회 API 호출 함수
 async function fetchMembers(tripId: number): Promise<MemberResponse[]> {
   const { data } = await api.get(`/trips/${tripId}/members`);
-  return data.data; //백엔드에서 응답을 데이터 안에 데이터로 보내서 data -> data.data
+  return data;
 }
 
 // 참여자 목록 조회 훅
@@ -32,7 +32,7 @@ export function useTripsQuery() {
 
 async function fetchTrip(tripId: number): Promise<{ title: string }> {
   const { data } = await api.get(`/trips/${tripId}`);
-  return data.data;
+  return data;
 }
 
 export function useTripQuery(tripId: number) {

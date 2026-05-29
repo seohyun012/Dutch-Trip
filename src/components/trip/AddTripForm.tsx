@@ -62,7 +62,12 @@ export default function AddTripForm({ onSubmit, isPending = false }: Props) {
       nation: "대한민국",
       start_date: startDate,
       end_date: endDate,
-      //fixed_expenses: fixedExpenses.filter((e) => e.item_name.trim()), //빈칸은 제외
+      fixed_costs: fixedExpenses
+      .filter((e) => e.item_name.trim())  // 빈칸은 제외
+      .map((e) => ({
+        title: e.item_name.trim(),
+        total_amount: e.price,
+      })),
     };
 
     /*onSubmit(newTrip); //이거때문에 add-trip/page.tsx의 핸들섭밋실행
