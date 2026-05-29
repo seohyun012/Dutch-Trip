@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import type { Schedule } from "@/store/useScheduleStore";
+import type { ScheduleResponse } from "@/types";
 
 function formatTimeParts(iso: string) {
   // ISO 날짜 문자열에서 시(hh)와 분(mm)을 분리해서 반환 (영수증 탭과 동일 방식)
@@ -70,7 +70,7 @@ function ScheduleCard({ title, content }: ScheduleCardProps) {
 // ─── 메인 컴포넌트 ──────────────────────────────────────
 
 interface Props {
-  schedules: Schedule[];  // 부모에서 서버 데이터를 받음
+  schedules: ScheduleResponse[];  // 부모에서 서버 데이터를 받음
   startDate: string;
   endDate: string;
 }

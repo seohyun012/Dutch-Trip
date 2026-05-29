@@ -69,7 +69,7 @@ export default function AddScheduleForm({
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="여행 이름 입력"
+          placeholder="일정 제목 입력"
           className="w-full py-7 font-bold text-center text-2xl bg-[#E5E5FE] rounded-xl placeholder-gray-400 outline-none"
         />
 

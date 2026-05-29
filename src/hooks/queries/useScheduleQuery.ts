@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
-import type { Schedule } from "@/store/useScheduleStore";
+import type { ScheduleResponse } from "@/types";
 
 // 일정 목록 조회 API 호출 함수 (명세서 3.2)
 // 서버가 시간순으로 자동 정렬해서 돌려줌
-async function fetchSchedules(tripId: number): Promise<Schedule[]> {
+async function fetchSchedules(tripId: number): Promise<ScheduleResponse[]> {
   const { data } = await api.get(`/trips/${tripId}/schedules`);
   return data;
 }

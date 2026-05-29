@@ -29,6 +29,15 @@ export interface ScheduleRequest { //일정 추가 시 서버에 보내는 데�
   content: string;
 }
 
+// 일정 목록 조회 시 서버에서 받는 데이터 (명세서 3.2) store 에서 옮김
+export interface ScheduleResponse {
+  schedule_id: number;
+  schedule_date: string;
+  schedule_time: string;
+  title: string;
+  content: string;
+}
+
 // 참여자 목록 조회 시 서버에서 받는 데이터 (명세서 2.3)
 export interface MemberResponse {
   user_id: number;
@@ -58,6 +67,7 @@ export interface TripRequest {
   nation: string;
   start_date: string; // "YYYY-MM-DD" 형식
   end_date: string;   // "YYYY-MM-DD" 형식
+  fixed_costs?: { title: string; total_amount: number }[]; //고정비용 추가됨
 }
 
 // 여행방 생성 응답 타입

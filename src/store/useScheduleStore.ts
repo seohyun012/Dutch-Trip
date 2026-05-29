@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { ScheduleResponse } from "@/types";
 
 export interface Schedule {
   schedule_id: number;
@@ -48,8 +49,8 @@ const mockSchedules: Schedule[] = [
 ];
 
 interface ScheduleStore {
-  schedules: Schedule[];
-  addSchedule: (schedule: Schedule) => void;
+  schedules: ScheduleResponse[]; //차피 store 사용 안 하지만 혹시 몰라서 
+  addSchedule: (schedule: ScheduleResponse) => void;
 }
 
 export const useScheduleStore = create<ScheduleStore>((set) => ({
