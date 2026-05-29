@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, Plane } from "lucide-react";
+import { Plane } from "lucide-react";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
+import { useTripsQuery as useTripQuery } from "@/hooks/queries/useTripQuery";
 
 export default function Mypage() {
   const router = useRouter();
@@ -87,32 +88,35 @@ export default function Mypage() {
     }
   };
 
-  {
-    /*서버에서 여행 기록 받아오기_여행명과 타임라인*/
-  }
-  const [travels, setTravels] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true); //데이터를 불러오는 중인지 아닌지
+  {/*서버에서 여행 기록 받아오기_여행명과 타임라인*/}
+  const { data: resData, isLoading: loading } = useTripQuery();
 
-  {
-    /*로그인 로직_카카오 로그인 정보 가져오기*/
-  }
- useEffect(() => {
-    // 백엔드에서 프로필 및 계좌 정보 가져오는 함수
-   const fetchUserProfile = async () => {
+  const travels = resData?.map((trip: any) => {
+    const parts = (trip.start_date || "").split("-");
+    const dateForm = parts.length >= 3 ? `${parts[1]}/${parts[2]}` : "00/00";
+    return {
+      trip_id: trip.trip_id,
+      title: trip.title,
+      date: dateForm
+    };
+  }) || [];
+
+  {/*로그인 로직_카카오 로그인 정보 가져오기*/}
+  useEffect(() => {
+    const fetchUserProfile = async () => {
       console.log("1. fetchUserProfile 함수 시작");
       try {
         const token = localStorage.getItem("access_token");
         console.log("2.토큰 확인:", token);
 
         if (!token) {
-        console.error(" 로컬스토리지에 access_token이 없습니다. 다시 로그인 해주세요");
+          console.error(" 로컬스토리지에 access_token이 없습니다. 다시 로그인 해주세요");
           setUserData({
             userId: null, email: "", nickname: "토큰 없음 (로그인 필요)",
             profileImage: "", bankName: "", accountNumber: "",
           });
-
-        return;
-      }
+          return;
+        }
         console.log("3. 백엔드로 요청 보내기");
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me`, {
           method: "GET",
@@ -137,7 +141,6 @@ export default function Mypage() {
             accountNumber: data.account_number,
           });
 
-          //  등록된 계좌가 있다면 "은행명 계좌번호" 형식으로 인풋창에 저장
           if (data.bank_name && data.account_number) {
             setAccount(`${data.bank_name} ${data.account_number}`);
           }
@@ -147,65 +150,15 @@ export default function Mypage() {
       }
     };
 
-    // (2) 서버에서 여행 리스트 가져오기 (시뮬레이션)
-    const fetchTravels = async () => {
-      try {
-        // 실제 연동 시: const res = await fetch('/api/travels');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/trips`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (res.ok) {
-          const resData = await res.json();
-        
-          if (resData.data && resData.data.length > 0) {
-            const formattedData = resData.data.map((trip: any) => {
-              const parts = (trip.start_date || "").split("-");
-              const dateForm = parts.length >= 3 ? `${parts[2]}/${parts[1]}` : "00/00";
-              return {
-                trip_id: trip.trip_id,
-                title: trip.title,
-                start_data: trip.start_data,
-                date: dateForm
-              };
-            });
-            setTravels(formattedData);
-          } else {
-            // 백엔드가 비어있으면 더미 데이터 뜨게함
-            setTravels([
-            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
-            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
-            ]);
-          }
-        } else {
-          setTravels([
-            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
-            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
-          ]);
-        }
-      } catch (error) {
-        setTravels([
-            { trip_id: 10, title: "필리핀여행", start_date: "2026-05-24", date: "24/05" },
-            { trip_id: 11, title: "커플여행", start_date: "2026-07-25", date: "25/07" }
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const token = localStorage.getItem("access_token");
     fetchUserProfile();
-    fetchTravels(); 
- }, []);
+  }, []);
   
   return (
-    <main className="bg-white min-h-screen w-full flex flex-col relative overflow-hidden">
+    <main className="bg-white h-screen w-full flex flex-col relative overflow-hidden">
       <Header title="마이페이지" />
-      <div className="w-full flex flex-col gap-1 px-4">
+      
+      {/* 프로필과 계좌 구역 (스크롤 안 됨, 상단 고정) */}
+      <div className="w-full flex flex-col gap-1 px-4 shrink-0">
         {/*프로필 정보 박스*/}
         <section className="bg-[#E5E5FE] rounded-2xl mt-4 px-5 py-3 w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -224,8 +177,15 @@ export default function Mypage() {
           </div>
           <button
             onClick={() => {
-              localStorage.removeItem("access_token");
-              router.push("/login");
+              localStorage.clear();
+              sessionStorage.clear();
+              document.cookie.split(";").forEach((cookie) => {
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.trim().slice(0, eqPos) : cookie.trim();
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+              });
+              console.log(" [백엔드 API 없음 확인] 브라우저 모든 로그인 기록(토큰/쿠키) 강제 초기화 완료!");
+              window.location.href = "/login";
             }}
             className="bg-white px-4 py-2 rounded-full text-xl font-normal text-black active:scale-95 transition-transform"
           >
@@ -234,7 +194,7 @@ export default function Mypage() {
         </section>
 
         {/*계좌번호 입력_수동입력 및 수정*/}
-        <section className="flex items-center justify-between px-2 mb-25">
+        <section className="flex items-center justify-between px-2 mb-20">
             <div className="flex-1 pt-1">
               {isEditing ? (
                 <input
@@ -252,12 +212,11 @@ export default function Mypage() {
                       ? "text-black" 
                       : "text-black/30"
                   }`}
-                  >
-                  
-                {userData.bankName && userData.accountNumber
-                  ? `${userData.bankName} ${userData.accountNumber}`
-                  : account || "계좌번호를 입력해주세요"}
-              </span>
+                >
+                  {userData.bankName && userData.accountNumber
+                    ? `${userData.bankName} ${userData.accountNumber}`
+                    : account || "계좌번호를 입력해주세요"}
+                </span>
               )}
             </div>
             <button
@@ -267,24 +226,26 @@ export default function Mypage() {
               {isEditing ? "저장" : "수정"}
             </button>
         </section>
+        <h2 className="text-2xl text-black px-2 font-bold">내 여행</h2>
+      </div>
 
+     <div className="flex-1 overflow-y-auto px-4 pb-32 max-h-[49vh] bg-transparent custom-scrollbar z-10">
         {/*여행 기록 리스트*/}
-        <section className="flex flex-col gap-4 z-10">
-          <h2 className="text-2xl text-black px-2">내 여행</h2>
+        <section className="flex flex-col gap-4">
+
           <div className="flex flex-col gap-2">
             {loading ? (
-              <div className="animate-pulse bg-[#E5E5FE] rounded-2xl w-full" />
+              <div className="animate-pulse bg-[#E5E5FE] h-14 rounded-2xl w-full" />
             ) : travels.length > 0 ? (
-              travels.map((travel) => (
+              travels.map((trip: any) => (
                 <button
-                  key={travel.trip_id}
-                  onClick={() => router.push(`/timeline/${travel.trip_id}?title=${encodeURIComponent(travel.title)}`)} // 👈 이름 데이터까지 같이 토스!
+                  key={trip.trip_id}
+                  onClick={() => router.push(`/trip/${trip.trip_id}?title=${encodeURIComponent(trip.title)}`)}
                   className="w-full bg-[#E5E5FE] rounded-2xl flex items-center p-2 gap-2 active:scale-[0.98] transition-all"
                 >
-                 
                   <Plane size={32} className="text-black" />
-                  <span className="text-2xl text-black">
-                    {travel.date} {travel.title}
+                  <span className="text-2xl text-black font-bold">
+                    {trip.date} {trip.title}
                   </span>
                 </button>
               ))
@@ -297,20 +258,21 @@ export default function Mypage() {
             )}
           </div>
         </section>
-
-        {/*배경 로고*/}
-        <div className="absolute bottom-[3vh] -right-12 opacity-25 -z-0 pointer-events-none">
-          <Image
-            src="/mypage.png"
-            alt="배경 로고"
-            width={320}
-            height={320}
-            className="w-[82vw] max-w-[350px]"
-          ></Image>
-        </div>
       </div>
 
-      <Button label="송금으로 이동" onClick={() => router.push("/pay")} fixed />
+      {/*배경 로고 (위치 고정)*/}
+      <div className="absolute bottom-[10vh] -right-12 opacity-25 z-0 pointer-events-none">
+        <Image
+          src="/mypage.png"
+          alt="배경 로고"
+          width={320}
+          height={320}
+          className="w-[82vw] max-w-[350px]"
+        />
+      </div>
+       <div className="relative z-50">     
+          <Button label="송금으로 이동" onClick={() => router.push("/pay")} fixed />
+      </div>
     </main>
   );
 }
