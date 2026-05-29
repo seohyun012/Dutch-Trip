@@ -21,9 +21,13 @@ export default function TripPage({
 }) {
   const { id } = use(params);
   //목데이터 제거 서버에서 가져옴
-  const { data: members, isLoading: membersLoading } = useMembersQuery(Number(id));
+  const { data: members, isLoading: membersLoading } = useMembersQuery(
+    Number(id),
+  );
   const { data: trips, isLoading: tripsLoading } = useTripsQuery();
-  const { data: schedules, isLoading: schedulesLoading } = useSchedulesQuery(Number(id));
+  const { data: schedules, isLoading: schedulesLoading } = useSchedulesQuery(
+    Number(id),
+  );
   /*const mockMembers = [
     //이거 trip/[id]/add-expense/page.tsx에도 똑같은거 있는데 둘다 변경해야함
     { user_id: 1, nickname: "최서현" },
@@ -40,7 +44,8 @@ export default function TripPage({
     searchParams.get("tab") === "영수증" ? "영수증" : "일정",
   );
 
-  if (membersLoading || tripsLoading || schedulesLoading) return <Loading />;
+  // 로딩 조건에서 schedules 제거
+  if (membersLoading || tripsLoading) return <Loading />;
 
   return (
     <main className="w-full min-h-screen bg-[#FFFFFF] flex flex-col">
@@ -82,7 +87,7 @@ export default function TripPage({
         overflow-y-auto: 세로로 넘칠 때 스크롤 생김. */}
         {activeTab === "영수증" && (
           //<ExpenseTab members={mockMembers} tripId={Number(id)} />
-          <ExpenseTab members = { members ?? []} tripId = { Number(id)} />
+          <ExpenseTab members={members ?? []} tripId={Number(id)} />
         )}{" "}
         {/*참이면 뒤 실행*/}
         {activeTab === "일정" && (

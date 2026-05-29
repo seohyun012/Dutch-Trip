@@ -6,9 +6,7 @@ import type { ExpenseRequest, OcrResponse } from "@/types";
 async function uploadOcr(tripId: number, file: File): Promise<OcrResponse> {
   const formData = new FormData();
   formData.append("image", file);
-  const { data } = await api.post(`/trips/${tripId}/expenses/ocr`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.post(`/trips/${tripId}/expenses/ocr`, formData);
   return data.data;
 }
 

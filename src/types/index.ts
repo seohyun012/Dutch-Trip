@@ -13,7 +13,7 @@ export interface Expense { // 영수증 하나
   expense_id: number;
   title: string;
   total_amount: number;
-  expense_type: "고정금액" | "추가금액";
+  expense_type: "고정" | "추가";
   split_type?: "개인" | "더치"; //추가금액일때만 표시
   payment_time?: string;
   receipt_image_url?: string;
@@ -86,7 +86,7 @@ export interface ExpenseItemRequest {
 export interface ExpenseRequest {
   title: string;
   total_amount: number;
-  expense_type: "고정금액" | "추가금액";
+  expense_type: "고정" | "추가";
   payment_time?: string;
   currency?: string;
   exchange_rate?: number;

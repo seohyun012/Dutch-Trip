@@ -85,7 +85,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
     await createExpense({
       title,
       total_amount: totalAmount,
-      expense_type: "추가금액",
+      expense_type: "추가",
       payment_time: paymentTime || undefined,
       payer_user_id: payerUserId,
       items: items.map((item) => ({
