@@ -163,7 +163,7 @@ export default function Mypage() {
         <section className="bg-[#E5E5FE] rounded-2xl mt-4 px-5 py-3 w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-white rounded-full overflow-hidden">
-              <Image
+              <img
                 src={userData.profileImage}
                 alt="프로필"
                 width={64}
