@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useTripsQuery as useTripQuery } from "@/hooks/queries/useTripQuery";
 
 export default function Home() {
   const router = useRouter();
@@ -13,11 +14,47 @@ export default function Home() {
   //입력창 모드 관리
   const [isInputMode, setIsInputMode] = useState(false); //"여행 참여" 버튼을 눌렀을 때 버튼 대신 입력창을 보여줄지 말지를 결정
   const [tripCode, setTripCode] = useState(""); //입력창에 사용자가 타이핑한 6자리 코드 값을 실시간으로 저장
-  //테스트용 코드
-  const VALID_CODE = "1A3456";
+
+  const { data: resData, isLoading: loading } = useTripQuery();
+
+
+  const getOngoingTripStatus = () => {
+    if (!resData || resData.length === 0) return { text: "-", id: null };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // 오늘 날짜가 포함된 여행 찾기
+    const ongoingTrip = resData.find((trip: any) => {
+      const start = new Date(trip.start_date);
+      const end = new Date(trip.end_date);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+
+      return today >= start && today <= end;
+    });
+
+    // 진행 여행이 없을 시 "-"
+    if (!ongoingTrip) return { text: "-", id: null };
+
+    // 진행 중인 여행이 있다면
+    const startDate = new Date(ongoingTrip.start_date);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const diffTime = Math.abs(today.getTime() - startDate.getTime());
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    return { 
+      text: `${ongoingTrip.title} DAY-${diffDays}`, 
+      id: ongoingTrip.trip_id 
+    };
+  };
+
+  const { text: currentTripTitle, id: currentTripId } = getOngoingTripStatus();
+  if (loading) return <Loading />;
 
   const menus = [
-    { title: "가평 여행 DAY-1", primary: true },
+    { title: currentTripTitle, primary: true, id: currentTripId },
     { title: "새로운 여행 추가", primary: false },
     { title: "여행 참여", primary: false },
     { title: "마이페이지", primary: false },
@@ -56,9 +93,9 @@ export default function Home() {
             <Image
               src="/home.png"
               alt="홈화면로고"
-              fill //부모크기에 맞게
-              className="object-contain" // 비율 유지, 이미지 전체 보임
-              priority //제일먼저 이미지불러옴
+              fill 
+              className="object-contain" 
+              priority 
             />
           </motion.div>
 
@@ -117,9 +154,7 @@ export default function Home() {
             );
           }
 
-          {
-            /*평상시(입력모드 아닐 때의 코드)*/
-          }
+          { /*평상시(입력모드 아닐 때의 코드)*/}
           return (
             <motion.button
               key={idx}
@@ -131,8 +166,12 @@ export default function Home() {
                   router.push("/mypage");
                 } else if (menu.title === "새로운 여행 추가") {
                   router.push("/add-trip");
-                } else if (menu.title === "가평 여행 DAY-1") {
-                  router.push("/trip/1");
+                } else if (menu.primary) {
+                  if (menu.id) {
+                    router.push(`/trip/${menu.id}`);
+                  } else {
+                    alert("현재 진행 중인 여행 일정이 없습니다.");
+                  }
                 }
               }}
               className={`h-16 w-full rounded-2xl font-bold text-2xl shadow-lg transition-all
