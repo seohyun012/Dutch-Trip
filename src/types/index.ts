@@ -99,6 +99,7 @@ export interface ExpenseRequest {
 export interface OcrResponse {
   parsed_title: string;
   parsed_total_amount: number;
+  parsed_payment_time?: string;
   parsed_items: {
     item_name: string;
     price: number;
