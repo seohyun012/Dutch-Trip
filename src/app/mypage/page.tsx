@@ -136,7 +136,7 @@ export default function Mypage() {
             userId: data.user_id,
             email: data.email,
             nickname: data.nickname, 
-            profileImage: "/seohyun.png",
+            profileImage: data.profile_image_url || "/profile.png",
             bankName: data.bank_name,
             accountNumber: data.account_number,
           });
