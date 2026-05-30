@@ -82,6 +82,8 @@ export default function ExpenseCard({
   const isDutch = expense.split_type === "더치";
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴선택 누르면 메뉴패널 열고닫기
   const { selectedExpenses, toggleExpenseParticipant } = useSettleStore();
+  console.log("members:", JSON.stringify(members));
+  console.log("selectedExpenses:", JSON.stringify(selectedExpenses));
   //selectedExpenses: 내가 선택한 영수증들을 담음. toggleExpenseParticipant: 영수증 선택/해제하는 함수
   const isSelected = selectedExpenses.some(
     //지금이게 선택 바구니에 있는지 확인.

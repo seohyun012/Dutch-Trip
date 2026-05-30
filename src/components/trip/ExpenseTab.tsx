@@ -6,9 +6,7 @@ import { ChevronDown } from "lucide-react";
 import type { Expense } from "@/types"; // @/ : /src
 import ExpenseCard from "./ExpenseCard";
 import { useExpenseQuery } from "@/hooks/queries/useExpenseQuery";
-
-// 현재 로그인 유저 ID - 실제 서비스에서는 Zustand store(useAuthStore)에서 가져옴
-const CURRENT_USER_ID = 1;
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Props {
   members: { user_id: number; nickname: string }[];
@@ -46,6 +44,8 @@ function groupByDay(expenses: Expense[]) {
 
 export default function ExpenseTab({ members, tripId }: Props) {
   // 메인함수
+  const { userId } = useAuthStore();
+  const CURRENT_USER_ID = userId ?? 1;
   const { data: expenses = [], isLoading } = useExpenseQuery(tripId);
   const { setExpenses } = useExpenseStore();
   const [activeDayIdx, setActiveDayIdx] = useState(0); //activeDayIdx: 현재 선택된 DAY 인덱스

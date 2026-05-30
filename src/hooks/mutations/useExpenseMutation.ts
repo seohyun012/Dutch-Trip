@@ -12,6 +12,7 @@ async function uploadOcr(tripId: number, file: File): Promise<OcrResponse> {
 
 // 지출 내역 등록
 async function createExpense(tripId: number, body: ExpenseRequest) {
+  console.log("영수증 등록 데이터:", body);
   const { data } = await api.post(`/trips/${tripId}/expenses`, body);
   return data.data;
 }
@@ -32,3 +33,4 @@ export function useCreateExpenseMutation(tripId: number) {
     },
   });
 }
+

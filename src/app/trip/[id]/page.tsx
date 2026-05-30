@@ -108,7 +108,10 @@ export default function TripPage({
             >
               <Plus size={32} strokeWidth={4} />
             </button>
-            <Button label="정산 하기" />
+            <Button
+              label="정산 하기"
+              onClick={() => router.push(`/trip/${id}/pay`)}
+            />
           </>
         )}
         {activeTab === "일정" && (
