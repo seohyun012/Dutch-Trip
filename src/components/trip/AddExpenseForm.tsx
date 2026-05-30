@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Expense, ExpenseItem, Participant, OcrResponse } from "@/types";
 import { ChevronLeft } from "lucide-react";
+//import Loading from "@/app/loading";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
 import {
@@ -59,6 +60,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
     setImageAttached(true);
     setTitle(result.parsed_title);
     setTotalAmount(result.parsed_total_amount);
+    if (result.parsed_payment_time) setPaymentTime(result.parsed_payment_time);
     // OCR 아이템을 ExpenseItem 형태로 변환 (participants는 빈 배열)
     setItems(
       result.parsed_items.map((i: OcrResponse["parsed_items"][number]) => ({
@@ -86,6 +88,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
       title,
       total_amount: totalAmount,
       expense_type: "추가",
+      split_type: splitType,
       payment_time: paymentTime || undefined,
       payer_user_id: payerUserId,
       items: items.map((item) => ({
@@ -99,6 +102,8 @@ export default function AddExpenseForm({ tripId, members }: Props) {
 
     router.push(`/trip/${tripId}?tab=영수증`);
   }
+
+  //if (isOcrLoading) return <Loading />;
 
   return (
     <div className="flex flex-col min-h-screen bg-white ">
