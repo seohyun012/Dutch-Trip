@@ -3,7 +3,13 @@
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-export default function Header({ title }: { title: string }) {
+export default function Header({
+  title,
+  backTo,
+}: {
+  title: string;
+  backTo?: string;
+}) {
   const router = useRouter();
 
   return (
@@ -14,7 +20,7 @@ export default function Header({ title }: { title: string }) {
         sticky: 스크롤해도 해더고정,
         top-0: 최상단 고정,*/}
       <button
-        onClick={() => router.back()}
+        onClick={() => (backTo ? router.push(backTo) : router.back())}
         className="absolute left-3 text-white"
       >
         <ChevronLeft size={34} strokeWidth={3} />

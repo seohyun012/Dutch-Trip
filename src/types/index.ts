@@ -87,6 +87,7 @@ export interface ExpenseRequest {
   title: string;
   total_amount: number;
   expense_type: "고정" | "추가";
+  split_type?: "개인" | "더치";
   payment_time?: string;
   currency?: string;
   exchange_rate?: number;
@@ -100,6 +101,7 @@ export interface OcrResponse {
   parsed_title: string;
   parsed_total_amount: number;
   parsed_payment_time?: string;
+  receipt_image_url?: string;
   parsed_items: {
     item_name: string;
     price: number;

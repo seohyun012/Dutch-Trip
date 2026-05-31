@@ -32,7 +32,9 @@ export default function AddExpenseForm({ tripId, members }: Props) {
   const [paymentTime, setPaymentTime] = useState("");
   const [items, setItems] = useState<ExpenseItem[]>([]);
   //ExpenseItem타입 배열로 items를 주겠다.
-
+  const [receiptImageUrl, setReceiptImageUrl] = useState<string | undefined>(
+    undefined,
+  );
   const [itemParticipants, setItemParticipants] = useState<
     Record<string, number[]>
   >({});
@@ -61,6 +63,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
     setTitle(result.parsed_title);
     setTotalAmount(result.parsed_total_amount);
     if (result.parsed_payment_time) setPaymentTime(result.parsed_payment_time);
+    if (result.receipt_image_url) setReceiptImageUrl(result.receipt_image_url);
     // OCR 아이템을 ExpenseItem 형태로 변환 (participants는 빈 배열)
     setItems(
       result.parsed_items.map((i: OcrResponse["parsed_items"][number]) => ({
@@ -90,6 +93,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
       expense_type: "추가",
       split_type: splitType,
       payment_time: paymentTime || undefined,
+      receipt_image_url: receiptImageUrl,
       payer_user_id: payerUserId,
       items: items.map((item) => ({
         item_name: item.item_name,

@@ -7,6 +7,7 @@ import MenuPanel from "./MenuPanel";
 import { useSettleStore } from "@/store/useSettleStore";
 import type { Participant } from "@/types";
 import { useRouter } from "next/navigation";
+import { useUpdateExpenseMutation } from "@/hooks/mutations/useExpenseMutation";
 
 interface Props {
   // 이컴포넌트가 받아야하는 데이터 이름:타입 정의
@@ -27,6 +28,7 @@ function FixedPayerDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(expense.payer.user_id);
+  const { mutate: updateExpense } = useUpdateExpenseMutation(tripId);
 
   const selectedName =
     members.find((m) => m.user_id === selectedId)?.nickname ??
@@ -54,6 +56,24 @@ function FixedPayerDropdown({
                 e.stopPropagation();
                 setSelectedId(m.user_id);
                 setOpen(false);
+                updateExpense({
+                  expenseId: expense.expense_id,
+                  body: {
+                    title: expense.title,
+                    total_amount: expense.total_amount,
+                    expense_type: expense.expense_type,
+                    split_type: expense.split_type,
+                    payment_time: expense.payment_time,
+                    payer_user_id: m.user_id,
+                    items: expense.items.map((item) => ({
+                      item_name: item.item_name,
+                      price: item.price,
+                      participant_user_ids: item.participants.map(
+                        (p) => p.user_id,
+                      ),
+                    })),
+                  },
+                });
               }}
               className={`block w-full px-5 py-2 text-lg text-left ${
                 m.user_id === selectedId
@@ -82,8 +102,6 @@ export default function ExpenseCard({
   const isDutch = expense.split_type === "더치";
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴선택 누르면 메뉴패널 열고닫기
   const { selectedExpenses, toggleExpenseParticipant } = useSettleStore();
-  console.log("members:", JSON.stringify(members));
-  console.log("selectedExpenses:", JSON.stringify(selectedExpenses));
   //selectedExpenses: 내가 선택한 영수증들을 담음. toggleExpenseParticipant: 영수증 선택/해제하는 함수
   const isSelected = selectedExpenses.some(
     //지금이게 선택 바구니에 있는지 확인.

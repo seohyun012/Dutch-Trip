@@ -14,7 +14,10 @@ export default function SettlePage({
   const tripId = Number(id);
   const { data: settlements = [], isLoading } = useSettleQuery(tripId);
 
-  const formatPrice = (price: number) => price.toLocaleString() + "원";
+  const formatPrice = (price: number) => {
+    if (!price && price !== 0) return "0원";
+    return price.toLocaleString() + "원";
+  };
 
   if (isLoading) {
     return (
@@ -47,31 +50,33 @@ export default function SettlePage({
                     {data.receiver?.account_number || "계좌 정보 없음"}
                   </p>
                 </div>
-
                 <div className="flex items-center gap-1">
                   <span className="whitespace-nowrap text-black text-xl">
                     결제 내역
                   </span>
                   <div className="w-full border-t-2 border-dotted border-black" />
                 </div>
-
                 <div className="space-y-2 py-2">
-                  {data.related_expenses?.map((expense: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between text-black text-xl"
-                    >
-                      <span>{expense.expense_title}</span>
-                      <span>{formatPrice(expense.amount)}</span>
-                    </div>
-                  ))}
+                  {data.relatedExpenses?.map(
+                    (
+                      expense: any,
+                      idx: number, // related_expenses → relatedExpenses
+                    ) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between text-black text-xl"
+                      >
+                        <span>{expense.expense_title}</span>
+                        <span>{formatPrice(expense.amount)}</span>
+                      </div>
+                    ),
+                  )}
                 </div>
-
                 <div className="border-t-2 border-dotted border-black" />
-                <p className="text-[#0C6DFF] text-xl pt-3">{data.trip_name}</p>
+                <p className="text-[#0C6DFF] text-xl pt-3">{data.tripName}</p>
                 <div className="flex justify-between text-black text-xl py-2">
                   <span>나의 총 송금액:</span>
-                  <span>{formatPrice(data.amount_to_send)}</span>
+                  <span>{formatPrice(data.amountToSend)}</span>
                 </div>
                 <div className="w-full h-10 bg-[url('/barcode.png')] bg-repeat-x bg-contain opacity-60" />
               </motion.section>

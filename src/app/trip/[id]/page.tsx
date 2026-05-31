@@ -53,7 +53,7 @@ export default function TripPage({
       min-h-screen: 화면 전체 높이(최소정하고 늘어남),
       bg-[#EBF4FF]: 배경색, 
       flex flex-col: 세로로 요소 배치*/}
-      <Header title={currentTrip?.title ?? "여행"} />
+      <Header title={currentTrip?.title ?? "여행"} backTo="/home" />
       {/* 탭 - 헤더에 딱 붙게, 좌우 여백 없음, 각진 모서리 */}
       <div className="flex w-full sticky top-14 z-20">
         <button
