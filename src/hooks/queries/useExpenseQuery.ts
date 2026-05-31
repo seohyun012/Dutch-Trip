@@ -6,6 +6,7 @@ import type { Expense } from "@/types";
 
 async function fetchExpenses(tripId: number): Promise<Expense[]> {
   const { data } = await api.get(`/trips/${tripId}/expenses`);
+  console.log("expenses 응답:", JSON.stringify(data.data));
   return data.data;
 }
 
