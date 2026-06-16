@@ -7,6 +7,7 @@ import type { FixedExpense } from "@/store/useTripStore";
 import type { TripRequest, TripResponse } from "@/types";
 import Header from "@/components/common/Header";
 import Button from "@/components/common/Button";
+import { useAuthStore } from "@/store/useAuthStore";
 
 /*function generateInviteCode() {
   //랜덤코드 만드는 함수. api받으면 이거지우고 그걸로 사용
@@ -26,6 +27,7 @@ export default function AddTripForm({ onSubmit, isPending = false }: Props) {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const { userId } = useAuthStore();
   const [fixedExpenses, setFixedExpenses] = useState<FixedExpense[]>([
     { item_name: "", price: 0 },
   ]); //fixedExpenses: 현재 고정비용목록, useState<FixedExpense[]>: FixedExpense타입배열로 관리한다.
@@ -63,11 +65,12 @@ export default function AddTripForm({ onSubmit, isPending = false }: Props) {
       start_date: startDate,
       end_date: endDate,
       fixed_costs: fixedExpenses
-      .filter((e) => e.item_name.trim())  // 빈칸은 제외
-      .map((e) => ({
-        title: e.item_name.trim(),
-        total_amount: e.price,
-      })),
+        .filter((e) => e.item_name.trim()) // 빈칸은 제외
+        .map((e) => ({
+          title: e.item_name.trim(),
+          total_amount: e.price,
+          payer_user_id: userId,
+        })),
     };
 
     /*onSubmit(newTrip); //이거때문에 add-trip/page.tsx의 핸들섭밋실행

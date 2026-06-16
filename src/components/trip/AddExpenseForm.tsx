@@ -62,7 +62,7 @@ export default function AddExpenseForm({ tripId, members }: Props) {
     setImageAttached(true);
     setTitle(result.parsed_title);
     setTotalAmount(result.parsed_total_amount);
-    if (result.parsed_payment_time) setPaymentTime(result.parsed_payment_time);
+    if (result.payment_time) setPaymentTime(result.payment_time);
     if (result.receipt_image_url) setReceiptImageUrl(result.receipt_image_url);
     // OCR 아이템을 ExpenseItem 형태로 변환 (participants는 빈 배열)
     setItems(
@@ -214,6 +214,42 @@ export default function AddExpenseForm({ tripId, members }: Props) {
           >
             더치페이
           </button>
+        </div>
+      )}
+
+      {imageAttached && splitType === "개인" && (
+        <div className="mx-4 mt-3 bg-[#E5E5FE] rounded-xl p-4 space-y-4">
+          <p className="text-xl text-black">메뉴별 담당자 선택</p>
+          {items.map((item) => (
+            <div key={item.item_name}>
+              <div className="flex justify-between text-lg text-black mb-1">
+                <span>{item.item_name}</span>
+                <span>{item.price.toLocaleString()}원</span>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {members.map((m) => {
+                  const selected = (
+                    itemParticipants[item.item_name] ?? []
+                  ).includes(m.user_id);
+                  return (
+                    <button
+                      key={m.user_id}
+                      onClick={() =>
+                        toggleItemParticipant(item.item_name, m.user_id)
+                      }
+                      className="px-4 py-1 text-lg rounded-lg"
+                      style={{
+                        backgroundColor: selected ? "#85B5FF" : "#ffffff",
+                        color: "#000000",
+                      }}
+                    >
+                      {m.nickname}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
