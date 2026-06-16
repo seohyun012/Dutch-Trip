@@ -138,7 +138,7 @@ export default function ExpenseCard({
         {/* 제목 */}
         <div className="flex items-center justify-between pb-4">
           <p className="font-normal text-lg">{expense.title}</p>
-          {expense.split_type && (
+          {!isFixed && expense.split_type && (
             <p className="font-normal text-lg text-[#0C6DFF]">
               {expense.split_type === "개인" ? "개인메뉴" : "더치페이"}
             </p>
@@ -182,8 +182,11 @@ export default function ExpenseCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (expense.receipt_image_url)
+                if (expense.receipt_image_url) {
                   window.open(expense.receipt_image_url, "_blank");
+                } else {
+                  alert("등록된 영수증 이미지가 없습니다.");
+                }
               }}
               className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
             >

@@ -100,7 +100,7 @@ export interface ExpenseRequest {
 export interface OcrResponse {
   parsed_title: string;
   parsed_total_amount: number;
-  parsed_payment_time?: string;
+  payment_time?: string;
   receipt_image_url?: string;
   parsed_items: {
     item_name: string;
