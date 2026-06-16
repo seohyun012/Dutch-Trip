@@ -68,9 +68,7 @@ function FixedPayerDropdown({
                     items: expense.items.map((item) => ({
                       item_name: item.item_name,
                       price: item.price,
-                      participant_user_ids: item.participants.map(
-                        (p) => p.user_id,
-                      ),
+                      participant_user_ids: [],
                     })),
                   },
                 });
@@ -102,6 +100,7 @@ export default function ExpenseCard({
   const isDutch = expense.split_type === "더치";
   const [menuOpen, setMenuOpen] = useState(false); // 메뉴선택 누르면 메뉴패널 열고닫기
   const { selectedExpenses, toggleExpenseParticipant } = useSettleStore();
+  const { mutate: updateExpense } = useUpdateExpenseMutation(tripId);
   //selectedExpenses: 내가 선택한 영수증들을 담음. toggleExpenseParticipant: 영수증 선택/해제하는 함수
   const isSelected = selectedExpenses.some(
     //지금이게 선택 바구니에 있는지 확인.
@@ -119,12 +118,41 @@ export default function ExpenseCard({
       */}
       <div
         onClick={() => {
-          if (!isFixed)
-            toggleExpenseParticipant(
-              expense.expense_id,
-              expense.total_amount,
-              currentUserId,
+          if (isFixed) return;
+          toggleExpenseParticipant(
+            expense.expense_id,
+            expense.total_amount,
+            currentUserId,
+          );
+
+          if (isDutch) {
+            const hasUser = expense.items[0]?.participants.some(
+              (p) => p.user_id === currentUserId,
             );
+            updateExpense({
+              expenseId: expense.expense_id,
+              body: {
+                title: expense.title,
+                total_amount: expense.total_amount,
+                expense_type: expense.expense_type,
+                split_type: expense.split_type,
+                payment_time: expense.payment_time,
+                payer_user_id: expense.payer.user_id,
+                items: expense.items.map((item) => ({
+                  item_name: item.item_name,
+                  price: item.price,
+                  participant_user_ids: hasUser
+                    ? item.participants
+                        .filter((p) => p.user_id !== currentUserId)
+                        .map((p) => p.user_id)
+                    : [
+                        ...item.participants.map((p) => p.user_id),
+                        currentUserId,
+                      ],
+                })),
+              },
+            });
+          }
         }}
         className={isFixed ? "" : "cursor-pointer"}
         style={{
@@ -161,12 +189,8 @@ export default function ExpenseCard({
           {!isFixed && (
             <p>
               참여자:{" "}
-              {selectedExpenses //useSettleStore의 selectedExpenses에서 가져온 id를 여기서 nickname으로 반환
-                .find((e) => e.expense_id === expense.expense_id) //선택한 영수증 바구니
-                ?.participant_user_ids.map(
-                  (id) => members.find((m) => m.user_id === id)?.nickname,
-                )
-                .filter(Boolean)
+              {expense.items[0]?.participants
+                .map((p) => p.nickname)
                 .join(", ") || "없음"}
             </p>
           )}
@@ -207,9 +231,14 @@ export default function ExpenseCard({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (!isSelected) return;
                   setMenuOpen((v) => !v);
                 }}
-                className="flex-1 text-lg bg-[#E5E5FE] py-1 text-black"
+                className="flex-1 text-lg py-1"
+                style={{
+                  backgroundColor: isSelected ? "#E5E5FE" : "#d1d1d1",
+                  color: isSelected ? "#000000" : "#888888",
+                }}
               >
                 메뉴 선택
               </button>
@@ -244,6 +273,8 @@ export default function ExpenseCard({
             expenseId={expense.expense_id}
             members={members}
             readOnly={isDutch}
+            expense={expense}
+            tripId={tripId}
           />
         </div>
       )}

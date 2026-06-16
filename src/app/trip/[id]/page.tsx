@@ -28,12 +28,6 @@ export default function TripPage({
   const { data: schedules, isLoading: schedulesLoading } = useSchedulesQuery(
     Number(id),
   );
-  /*const mockMembers = [
-    //이거 trip/[id]/add-expense/page.tsx에도 똑같은거 있는데 둘다 변경해야함
-    { user_id: 1, nickname: "최서현" },
-    { user_id: 2, nickname: "김선태" },
-    { user_id: 3, nickname: "이지은" },
-  ];*/
 
   // 여행 목록에서 현재 trip_id와 일치하는 여행을 찾아서 제목을 가져옴
   const currentTrip = trips?.find((t) => t.trip_id === Number(id));

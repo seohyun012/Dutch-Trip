@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ExpenseItem } from "@/types"; //메뉴 하나
-import { useSettleStore } from "@/store/useSettleStore";
+import { useUpdateExpenseMutation } from "@/hooks/mutations/useExpenseMutation";
+import type { Expense } from "@/types";
 import type { Participant } from "@/types";
 
 interface Props {
@@ -13,6 +14,8 @@ interface Props {
   expenseId: number;
   members: Participant[];
   readOnly?: boolean;
+  expense: Expense;
+  tripId: number;
 }
 
 export default function MenuPanel({
@@ -21,23 +24,21 @@ export default function MenuPanel({
   expenseId,
   members,
   readOnly = false, //안넘겨주면 false
+  expense,
+  tripId,
 }: Props) {
   const [expanded, setExpanded] = useState<number | null>(null); //각메뉴 먹은사람 펼치기
-  const { selectedItems, toggleParticipant } = useSettleStore(); //toggleParticipant: 메뉴선택/해제하는 함수
-
-  function isSelected(itemName: string) {
-    return selectedItems.some(
-      //some: 배열에 조건에 맞는 요소가 하나라도 있으면 true 반환
-      (i) => i.expense_id === expenseId && i.item_name === itemName, //같은 영수증, 같은 메뉴
-    );
-  } //이게 true면 메뉴가 선택된거고, 파란배경으로 바뀜.
+  const [localItems, setLocalItems] = useState<ExpenseItem[]>(items);
+  const { mutate: updateExpense } = useUpdateExpenseMutation(tripId);
 
   return (
     <div>
-      {items.map((item, idx) => {
+      {localItems.map((item, idx) => {
         //items:영수증 안 메뉴목록
         const isOpen = expanded === idx;
-        const selected = !readOnly && isSelected(item.item_name);
+        const selected =
+          !readOnly &&
+          item.participants.some((p) => p.user_id === currentUserId);
 
         if (readOnly) {
           return (
@@ -58,12 +59,43 @@ export default function MenuPanel({
           <div
             key={idx}
             onClick={() => {
-              toggleParticipant(
+              const updated = localItems.map((i) => {
+                if (i.item_name !== item.item_name) return i;
+                const hasUser = i.participants.some(
+                  (p) => p.user_id === currentUserId,
+                );
+                return {
+                  ...i,
+                  participants: hasUser
+                    ? i.participants.filter((p) => p.user_id !== currentUserId)
+                    : [
+                        ...i.participants,
+                        {
+                          user_id: currentUserId,
+                          nickname:
+                            members.find((m) => m.user_id === currentUserId)
+                              ?.nickname ?? "",
+                        },
+                      ],
+                };
+              });
+              setLocalItems(updated);
+              updateExpense({
                 expenseId,
-                item.item_name,
-                item.price,
-                currentUserId,
-              );
+                body: {
+                  title: expense.title,
+                  total_amount: expense.total_amount,
+                  expense_type: expense.expense_type,
+                  split_type: expense.split_type,
+                  payment_time: expense.payment_time,
+                  payer_user_id: expense.payer.user_id,
+                  items: updated.map((i) => ({
+                    item_name: i.item_name,
+                    price: i.price,
+                    participant_user_ids: i.participants.map((p) => p.user_id),
+                  })),
+                },
+              });
             }}
             className="px-1 py-1 cursor-pointer" //cursor-pointer: 마우스 올리면 손가락 모양으로 바뀜
             style={{ backgroundColor: selected ? "#85B5FF" : "#E5E5FE" }}
@@ -87,17 +119,8 @@ export default function MenuPanel({
             {isOpen && (
               <div className="text-base text-black">
                 {(() => {
-                  const found = selectedItems.find(
-                    //선택된 메뉴 바구니에서 이 메뉴 찾기
-                    (i) =>
-                      i.expense_id === expenseId &&
-                      i.item_name === item.item_name,
-                  );
-                  const names = found?.participant_user_ids //id꺼내기
-                    .map(
-                      (id) => members.find((m) => m.user_id === id)?.nickname, // id를 닉네임으로 변환
-                    )
-                    .filter(Boolean)
+                  const names = item.participants
+                    .map((p) => p.nickname)
                     .join(", ");
                   return names || "선택된 인원 없음";
                 })()}
