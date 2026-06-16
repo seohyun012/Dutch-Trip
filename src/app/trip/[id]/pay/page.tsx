@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import { motion } from "framer-motion";
 import Header from "@/components/common/Header";
 import { useSettleQuery } from "@/hooks/queries/useSettleQuery";
@@ -13,8 +13,11 @@ export default function SettlePage({
 }) {
   const { id } = use(params);
   const tripId = Number(id);
-  const { data: settlements = [], isLoading } = useSettleQuery(tripId);
+  const { data: settlements = [], isLoading, refetch } = useSettleQuery(tripId);
   const { userId } = useAuthStore();
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const formatPrice = (price: number) => {
     if (!price && price !== 0) return "0원";
@@ -64,15 +67,20 @@ export default function SettlePage({
                   <div className="w-full border-t-2 border-dotted border-black" />
                 </div>
                 <div className="space-y-2 py-2">
-                  {data.relatedExpenses?.map((expense: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between text-black text-xl"
-                    >
-                      <span>{expense.expense_title}</span>
-                      <span>{formatPrice(expense.amount)}</span>
-                    </div>
-                  ))}
+                  {data.relatedExpenses
+                    ?.filter(
+                      (expense: any) =>
+                        expense.payer_nickname !== data.sender?.nickname,
+                    )
+                    .map((expense: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between text-black text-xl"
+                      >
+                        <span>{expense.expense_title}</span>
+                        <span>{formatPrice(expense.amount)}</span>
+                      </div>
+                    ))}
                 </div>
                 <div className="border-t-2 border-dotted border-black" />
                 <p className="text-[#0C6DFF] text-xl pt-3">{data.tripName}</p>
